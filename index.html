@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>basenote — Base üzerinde içerik platformu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif}
+a{color:inherit;text-decoration:none;cursor:pointer}
+
+nav{border-bottom:1.5px solid #111;padding:0 1.5rem;position:sticky;top:0;background:#fff;z-index:100}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px}
+.logo{font-family:'Lora',Georgia,serif;font-size:1.5rem;font-weight:600;letter-spacing:-.03em;color:#111}
+.logo span{color:#0052FF}
+.nav-links{display:flex;gap:1.75rem}
+.nav-links a{font-family:system-ui,sans-serif;font-size:.8rem;color:#555;letter-spacing:.02em;cursor:pointer}
+.nav-links a:hover{color:#111}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.wallet-pill{font-family:system-ui,sans-serif;font-size:.75rem;color:#555;border:1px solid #ddd;padding:.3rem .75rem;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:.4rem}
+.wallet-pill:hover{border-color:#0052FF;color:#0052FF}
+.w-dot{width:5px;height:5px;border-radius:50%;background:#22c55e}
+.btn-write{font-family:system-ui,sans-serif;font-size:.78rem;background:#111;color:#fff;border:none;padding:.38rem 1rem;border-radius:2px;cursor:pointer}
+.btn-write:hover{background:#333}
+
+.date-bar{border-bottom:1px solid #e5e5e5;padding:.5rem 0}
+.date-inner{max-width:960px;margin:0 auto;padding:0 1.5rem;font-family:system-ui,sans-serif;font-size:.72rem;color:#888;display:flex;justify-content:space-between;align-items:center}
+.treasury-pill{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:#555}
+.t-num{font-weight:600;color:#111}
+
+.main{padding:1.5rem 1.5rem 0;max-width:960px;margin:0 auto}
+.section-label{font-family:system-ui,sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;color:#888;text-transform:uppercase;padding-bottom:.5rem;border-bottom:2px solid #111;margin-bottom:1.2rem}
+
+.featured-row{display:grid;grid-template-columns:1fr 280px;gap:0;border-bottom:1px solid #e5e5e5;padding-bottom:1.5rem;margin-bottom:1.5rem}
+.featured-main{padding-right:2rem;border-right:1px solid #e5e5e5}
+.featured-tag{font-family:system-ui,sans-serif;font-size:.68rem;font-weight:600;color:#0052FF;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem}
+.featured-title{font-family:'Lora',Georgia,serif;font-size:1.65rem;font-weight:600;line-height:1.25;color:#111;margin-bottom:.6rem;cursor:pointer}
+.featured-title:hover{color:#0052FF}
+.featured-dek{font-family:system-ui,sans-serif;font-size:.88rem;color:#444;line-height:1.6;margin-bottom:.9rem}
+.article-meta{display:flex;align-items:center;justify-content:space-between}
+.meta-left{display:flex;align-items:center;gap:.5rem}
+.author-dot{width:24px;height:24px;border-radius:50%;background:#e5e5e5;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-size:.65rem;font-weight:600;color:#555}
+.author-name{font-family:system-ui,sans-serif;font-size:.75rem;color:#555}
+.read-time{font-family:system-ui,sans-serif;font-size:.72rem;color:#aaa}
+
+.price-tag{font-family:system-ui,sans-serif;font-size:.75rem;font-weight:600;color:#0052FF;cursor:pointer;border:1px solid #0052FF;padding:.22rem .6rem;border-radius:2px;white-space:nowrap}
+.price-tag:hover{background:#0052FF;color:#fff}
+
+.sidebar{padding-left:1.5rem}
+.sidebar-list{display:flex;flex-direction:column}
+.sidebar-item{padding:.8rem 0;border-bottom:1px solid #e5e5e5;cursor:pointer}
+.sidebar-item:first-child{padding-top:0}
+.sidebar-item:last-child{border-bottom:none}
+.sidebar-tag{font-family:system-ui,sans-serif;font-size:.65rem;font-weight:600;color:#0052FF;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem}
+.sidebar-title{font-family:'Lora',Georgia,serif;font-size:.9rem;line-height:1.3;color:#111;margin-bottom:.35rem}
+.sidebar-title:hover{color:#0052FF}
+.sidebar-meta{display:flex;justify-content:space-between;align-items:center}
+.sidebar-author{font-family:system-ui,sans-serif;font-size:.68rem;color:#888}
+
+.mid-section{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;padding:1.5rem 0;border-bottom:1px solid #e5e5e5;margin-bottom:1.5rem}
+.mid-card{cursor:pointer;border-right:1px solid #e5e5e5;padding-right:1.5rem}
+.mid-card:last-child{border-right:none;padding-right:0}
+.mid-tag{font-family:system-ui,sans-serif;font-size:.65rem;font-weight:600;color:#0052FF;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+.mid-title{font-family:'Lora',Georgia,serif;font-size:1rem;line-height:1.35;color:#111;margin-bottom:.5rem}
+.mid-title:hover{color:#0052FF}
+.mid-dek{font-family:system-ui,sans-serif;font-size:.78rem;color:#666;line-height:1.55;margin-bottom:.6rem}
+
+.treasury-strip{background:#f9f9f9;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;padding:.9rem 1.5rem;margin:0 0 1.5rem}
+.treasury-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:3rem;flex-wrap:wrap}
+.t-label{font-family:system-ui,sans-serif;font-size:.7rem;font-weight:600;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.15rem}
+.t-value{font-family:'Lora',Georgia,serif;font-size:1rem;font-weight:600;color:#111}
+.t-divider{width:1px;height:2rem;background:#e5e5e5}
+.t-dist{display:flex;gap:.1rem;height:4px;width:180px;overflow:hidden;margin-top:.4rem}
+.t-seg-p{height:100%;background:#111}
+.t-seg-w{height:100%;background:#0052FF}
+.t-seg-r{height:100%;background:#bbb}
+.t-dist-label{font-family:system-ui,sans-serif;font-size:.65rem;color:#888;margin-top:.3rem}
+.t-cta{margin-left:auto;font-family:system-ui,sans-serif;font-size:.75rem;color:#0052FF;cursor:pointer;text-decoration:underline}
+
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:2rem;padding-bottom:1.5rem;border-bottom:1px solid #e5e5e5;margin-bottom:1.5rem}
+.col-label{font-family:system-ui,sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;color:#888;text-transform:uppercase;padding-bottom:.5rem;border-bottom:2px solid #111;margin-bottom:1rem}
+.list-item{display:flex;align-items:flex-start;gap:.6rem;padding:.6rem 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.list-num{font-family:system-ui,sans-serif;font-size:.9rem;font-weight:600;color:#ccc;min-width:1.2rem}
+.list-title{font-family:'Lora',Georgia,serif;font-size:.88rem;line-height:1.3;color:#111;margin-bottom:.2rem}
+.list-title:hover{color:#0052FF}
+.list-meta-txt{font-family:system-ui,sans-serif;font-size:.65rem;color:#aaa}
+.list-price{font-family:system-ui,sans-serif;font-size:.68rem;font-weight:600;color:#0052FF;margin-left:.4rem}
+
+.lb-item{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid #f0f0f0}
+.lb-rank{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:600;color:#ccc;min-width:1rem;text-align:center}
+.lb-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-size:.65rem;font-weight:600;flex-shrink:0}
+.lb-info{flex:1}
+.lb-name{font-family:system-ui,sans-serif;font-size:.82rem;color:#111}
+.lb-addr{font-family:'Courier New',monospace;font-size:.65rem;color:#bbb}
+.lb-earn{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:600;color:#111;text-align:right}
+.lb-reads{font-family:system-ui,sans-serif;font-size:.65rem;color:#aaa;text-align:right}
+
+footer{border-top:1.5px solid #111;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto;flex-wrap:wrap;gap:.75rem}
+.footer-logo{font-family:'Lora',Georgia,serif;font-size:.9rem;font-weight:600;color:#111}
+.footer-logo span{color:#0052FF}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{font-family:system-ui,sans-serif;font-size:.7rem;color:#888;cursor:pointer}
+.footer-links a:hover{color:#111}
+
+/* MODALS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:1.5rem}
+.overlay.open{display:flex}
+
+.modal{background:#fff;border:1px solid #e5e5e5;padding:2rem;max-width:480px;width:100%;position:relative}
+.modal-tag{font-family:system-ui,sans-serif;font-size:.68rem;font-weight:600;color:#0052FF;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.6rem}
+.modal-title{font-family:'Lora',Georgia,serif;font-size:1.2rem;font-weight:600;color:#111;margin-bottom:.3rem;line-height:1.3}
+.modal-author{font-family:system-ui,sans-serif;font-size:.75rem;color:#888;margin-bottom:1rem}
+.modal-preview{font-family:'Lora',Georgia,serif;font-size:.9rem;color:#444;line-height:1.7;margin-bottom:1.2rem;font-style:italic;border-left:2px solid #e5e5e5;padding-left:.9rem}
+.modal-x402{font-family:system-ui,sans-serif;font-size:.75rem;color:#555;background:#f5f8ff;border:1px solid #dde8ff;padding:.6rem .8rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center}
+.x402-label{color:#0052FF;font-weight:600}
+.modal-actions{display:flex;gap:.6rem}
+.btn-pay{flex:1;background:#0052FF;color:#fff;border:none;padding:.65rem;font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:2px}
+.btn-pay:hover{background:#0040cc}
+.btn-cancel{background:#fff;color:#555;border:1px solid #e5e5e5;padding:.65rem 1rem;font-family:system-ui,sans-serif;font-size:.82rem;cursor:pointer;border-radius:2px}
+.btn-cancel:hover{border-color:#999}
+.modal-close{position:absolute;top:.9rem;right:1rem;background:none;border:none;font-size:1.1rem;color:#aaa;cursor:pointer;line-height:1}
+.modal-close:hover{color:#111}
+
+.wm-title{font-family:'Lora',Georgia,serif;font-size:1.1rem;font-weight:600;color:#111;margin-bottom:.3rem}
+.wm-sub{font-family:system-ui,sans-serif;font-size:.78rem;color:#888;margin-bottom:1.2rem}
+.wm-option{display:flex;align-items:center;gap:.75rem;padding:.7rem .8rem;border:1px solid #e5e5e5;margin-bottom:.5rem;cursor:pointer;border-radius:2px}
+.wm-option:hover{border-color:#0052FF}
+.wm-option.featured{border-color:#0052FF;background:#f5f8ff}
+.wm-option:last-child{margin-bottom:0}
+.wm-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:.75rem;font-weight:700;flex-shrink:0;background:#e5e5e5;color:#555}
+.wm-name{font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:#111}
+.wm-desc{font-family:system-ui,sans-serif;font-size:.7rem;color:#888}
+.wm-badge{margin-left:auto;font-family:system-ui,sans-serif;font-size:.65rem;background:#0052FF;color:#fff;padding:.15rem .5rem;border-radius:2px}
+
+@media(max-width:680px){
+  .featured-row{grid-template-columns:1fr}
+  .featured-main{padding-right:0;border-right:none;border-bottom:1px solid #e5e5e5;padding-bottom:1.2rem;margin-bottom:1.2rem}
+  .sidebar{padding-left:0}
+  .mid-section{grid-template-columns:1fr}
+  .mid-card{border-right:none;padding-right:0;border-bottom:1px solid #e5e5e5;padding-bottom:1rem}
+  .bottom-row{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .treasury-inner{gap:1.5rem}
+  .t-cta{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">base<span>note</span></div>
+    <div class="nav-links">
+      <a>Keşfet</a>
+      <a>DeFi</a>
+      <a>AI</a>
+      <a>Rehberler</a>
+      <a>Kasa</a>
+    </div>
+    <div class="nav-right">
+      <div class="wallet-pill" id="walletBtn" onclick="document.getElementById('wm').classList.add('open')">
+        <div class="w-dot"></div>
+        Cüzdan bağla
+      </div>
+      <button class="btn-write">Yazı yaz</button>
+    </div>
+  </div>
+</nav>
+
+<div class="date-bar">
+  <div class="date-inner">
+    <span>Perşembe, 10 Eylül 2026</span>
+    <div class="treasury-pill">
+      Kasa bu ay: <span class="t-num">48.200 USDC</span> &mdash; 18 günde dağıtılacak
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="section-label">Öne çıkan</div>
+
+  <div class="featured-row">
+    <div class="featured-main">
+      <div class="featured-tag">DeFi</div>
+      <div class="featured-title" onclick="openModal('Base Ekosisteminde Likidite Katmanları','coinacci','DeFi','2 USDC','Dört protokolü karşılaştırdım: her biri farklı bir likidite stratejisi sunuyor. İlk bakışta benzer görünen bu yapılar, gerçekte çok farklı risk profilleri taşıyor ve hangi kullanım senaryosu için hangisini seçmeniz gerektiği kritik önem taşıyor...')">Base ekosisteminde likidite katmanları: Dört protokolün karşılaştırması</div>
+      <div class="featured-dek">Base üzerinde aktif olan dört DeFi protokolünü — Aerodrome, Morpho, Moonwell ve Seamless — likidite derinliği, fee yapısı ve risk modeli açısından karşılaştırıyoruz.</div>
+      <div class="article-meta">
+        <div class="meta-left">
+          <div class="author-dot">C</div>
+          <span class="author-name">coinacci.base.eth</span>
+          <span class="read-time">&nbsp;·&nbsp;8 dk okuma</span>
+        </div>
+        <div class="price-tag" onclick="openModal('Base Ekosisteminde Likidite Katmanları','coinacci','DeFi','2 USDC','Dört protokolü karşılaştırdım...')">2 USDC</div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sidebar-list">
+        <div class="sidebar-item" onclick="openModal('AI Ajanları On-Chain Nasıl Para Kazanır','aibuilder','AI × Web3','1 USDC','Otonom AI ajanları artık kendi adına işlem yapabiliyor. x402 protokolü bu denklemi tamamen değiştiriyor — içerik, para ve zeka artık aynı katmanda buluşuyor...')">
+          <div class="sidebar-tag">AI × Web3</div>
+          <div class="sidebar-title">AI ajanları on-chain nasıl para kazanır</div>
+          <div class="sidebar-meta">
+            <span class="sidebar-author">aibuilder.eth · 5 dk</span>
+            <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">1 USDC</div>
+          </div>
+        </div>
+        <div class="sidebar-item" onclick="openModal('x402: HTTP\'nin Ödeme Katmanı','protocol','Protokol','1.5 USDC','HTTP 402 durum kodu yıllardır \"Payment Required\" olarak tanımlanmış ama hiç implement edilmemişti. x402 bunu değiştiriyor ve içerik monetizasyonunu HTTP katmanına taşıyor...')">
+          <div class="sidebar-tag">Protokol</div>
+          <div class="sidebar-title">x402: HTTP'nin unutulan ödeme katmanı</div>
+          <div class="sidebar-meta">
+            <span class="sidebar-author">protocol.eth · 6 dk</span>
+            <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">1.5 USDC</div>
+          </div>
+        </div>
+        <div class="sidebar-item" onclick="openModal('Coinbase Smart Wallet Nedir','devrel','Rehber','1 USDC','Seed phrase olmadan cüzdan yönetimi artık mümkün. Passkey ile giriş, gas sponsorluğu ve session key\'ler — Smart Wallet\'ın teknik mimarisini inceliyoruz...')">
+          <div class="sidebar-tag">Rehber</div>
+          <div class="sidebar-title">Coinbase Smart Wallet: teknik mimari</div>
+          <div class="sidebar-meta">
+            <span class="sidebar-author">devrel.base.eth · 4 dk</span>
+            <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">1 USDC</div>
+          </div>
+        </div>
+        <div class="sidebar-item" onclick="openModal('NFT Sanatçısı Olarak Gelir Modelleri','artblock','Sanat','3 USDC','Dijital sanat piyasasının aldığı yeni şekil, yaratıcılar için farklı gelir kapıları açıyor. Royalty modellerinin çöküşü ve alternatif yollar...')">
+          <div class="sidebar-tag">NFT</div>
+          <div class="sidebar-title">NFT sanatçısı olarak gelir modelleri</div>
+          <div class="sidebar-meta">
+            <span class="sidebar-author">artblock.eth · 7 dk</span>
+            <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">3 USDC</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Bu hafta</div>
+  <div class="mid-section">
+    <div class="mid-card" onclick="openModal('Onchain Yazarlık Ekonomisi','writer','Görüş','1 USDC','Fiat ödeme sistemleri içerik üreticilerini neden çökertir, ve alternatif neden Base üzerinde şekilleniyor. Orta ve uzun vadede en sürdürülebilir gelir modeli...')">
+      <div class="mid-tag">Görüş</div>
+      <div class="mid-title">Onchain yazarlık ekonomisi nereye gidiyor</div>
+      <div class="mid-dek">Fiat ödeme sistemleri içerik üreticilerini neden çökertir, ve alternatif neden Base üzerinde şekilleniyor.</div>
+      <div class="article-meta">
+        <span class="author-name" style="font-size:.72rem">writer.eth · 5 dk</span>
+        <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">1 USDC</div>
+      </div>
+    </div>
+    <div class="mid-card" onclick="openModal('USDC ile Mikro Ödeme Rehberi','defidev','DeFi','2 USDC','x402 + USDC kombinasyonu ile içerik ödemelerini nasıl entegre edersiniz. Tam teknik rehber, kod örnekleriyle. Base ağında USDC transferi, onay akışları ve hata yönetimi...')">
+      <div class="mid-tag">DeFi</div>
+      <div class="mid-title">USDC ile mikro ödeme: teknik entegrasyon rehberi</div>
+      <div class="mid-dek">x402 protokolü üzerinde USDC ödemesi nasıl kurulur, kod örnekleriyle adım adım.</div>
+      <div class="article-meta">
+        <span class="author-name" style="font-size:.72rem">defidev.eth · 10 dk</span>
+        <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">2 USDC</div>
+      </div>
+    </div>
+    <div class="mid-card" onclick="openModal('Base\'in L2 Mimarisi ve Gas Optimizasyonu','infra','Teknik','2.5 USDC','Base\'in Optimism üzerine kurulu OP Stack mimarisi nasıl çalışır? Sequencer, data availability ve gas fee hesapları — pratik bir bakış...')">
+      <div class="mid-tag">Teknik</div>
+      <div class="mid-title">Base'in L2 mimarisi ve gas optimizasyonu</div>
+      <div class="mid-dek">OP Stack üzerine kurulu Base'in sequencer mimarisi, data availability katmanı ve gas fee hesaplamaları.</div>
+      <div class="article-meta">
+        <span class="author-name" style="font-size:.72rem">infra.eth · 9 dk</span>
+        <div class="price-tag" style="font-size:.68rem;padding:.18rem .5rem">2.5 USDC</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="treasury-strip">
+  <div class="treasury-inner">
+    <div>
+      <div class="t-label">Kasada toplam</div>
+      <div class="t-value">48.200 USDC</div>
+    </div>
+    <div class="t-divider"></div>
+    <div>
+      <div class="t-label">Sonraki dağıtım</div>
+      <div class="t-value" id="cdown">18g 04s 32d</div>
+    </div>
+    <div class="t-divider"></div>
+    <div>
+      <div class="t-label">Dağıtım oranı</div>
+      <div class="t-dist">
+        <div class="t-seg-p" style="width:26%"></div>
+        <div class="t-seg-w" style="width:56%"></div>
+        <div class="t-seg-r" style="width:18%"></div>
+      </div>
+      <div class="t-dist-label">Platform %26 &nbsp;·&nbsp; Yazarlar %56 &nbsp;·&nbsp; Okuyucular %18</div>
+    </div>
+    <a class="t-cta">Kasayı incele</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="bottom-row">
+    <div>
+      <div class="col-label">Trending yazılar</div>
+      <div class="list-item" onclick="openModal('Base Ekosisteminde Likidite Katmanları','coinacci','DeFi','2 USDC','Dört protokolü karşılaştırdım...')">
+        <div class="list-num">1</div>
+        <div class="list-content">
+          <div class="list-title">Base ekosisteminde likidite katmanları <span class="list-price">2 USDC</span></div>
+          <div class="list-meta-txt">coinacci.base.eth · 847 okuma</div>
+        </div>
+      </div>
+      <div class="list-item" onclick="openModal('AI Ajanları On-Chain Nasıl Para Kazanır','aibuilder','AI','1 USDC','Otonom AI ajanları...')">
+        <div class="list-num">2</div>
+        <div class="list-content">
+          <div class="list-title">AI ajanları on-chain nasıl para kazanır <span class="list-price">1 USDC</span></div>
+          <div class="list-meta-txt">aibuilder.eth · 612 okuma</div>
+        </div>
+      </div>
+      <div class="list-item" onclick="openModal('NFT Sanatçısı Olarak Gelir Modelleri','artblock','NFT','3 USDC','Dijital sanat piyasası...')">
+        <div class="list-num">3</div>
+        <div class="list-content">
+          <div class="list-title">NFT sanatçısı olarak gelir modelleri <span class="list-price">3 USDC</span></div>
+          <div class="list-meta-txt">artblock.eth · 431 okuma</div>
+        </div>
+      </div>
+      <div class="list-item" onclick="openModal('x402: HTTP\'nin Ödeme Katmanı','protocol','Protokol','1.5 USDC','HTTP 402...')">
+        <div class="list-num">4</div>
+        <div class="list-content">
+          <div class="list-title">x402: HTTP'nin unutulan ödeme katmanı <span class="list-price">1.5 USDC</span></div>
+          <div class="list-meta-txt">protocol.eth · 389 okuma</div>
+        </div>
+      </div>
+      <div class="list-item" onclick="openModal('Base\'in L2 Mimarisi','infra','Teknik','2.5 USDC','OP Stack üzerine...')">
+        <div class="list-num">5</div>
+        <div class="list-content">
+          <div class="list-title">Base'in L2 mimarisi ve gas optimizasyonu <span class="list-price">2.5 USDC</span></div>
+          <div class="list-meta-txt">infra.eth · 287 okuma</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="col-label">Bu ay — yazar sıralaması</div>
+      <div class="lb-item">
+        <div class="lb-rank" style="color:#b8952a">1</div>
+        <div class="lb-dot" style="background:#dbeafe;color:#1d4ed8">C</div>
+        <div class="lb-info">
+          <div class="lb-name">coinacci.base.eth</div>
+          <div class="lb-addr">0x4a2b…f8c1</div>
+        </div>
+        <div>
+          <div class="lb-earn">3.240 USDC</div>
+          <div class="lb-reads">847 okuma</div>
+        </div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank" style="color:#9ca3af">2</div>
+        <div class="lb-dot" style="background:#ede9fe;color:#6d28d9">A</div>
+        <div class="lb-info">
+          <div class="lb-name">aibuilder.eth</div>
+          <div class="lb-addr">0x7c8d…22a4</div>
+        </div>
+        <div>
+          <div class="lb-earn">2.180 USDC</div>
+          <div class="lb-reads">612 okuma</div>
+        </div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank" style="color:#9ca3af">3</div>
+        <div class="lb-dot" style="background:#fef9c3;color:#854d0e">N</div>
+        <div class="lb-info">
+          <div class="lb-name">artblock.eth</div>
+          <div class="lb-addr">0x9e1f…b3d7</div>
+        </div>
+        <div>
+          <div class="lb-earn">1.870 USDC</div>
+          <div class="lb-reads">431 okuma</div>
+        </div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank" style="color:#d1d5db">4</div>
+        <div class="lb-dot" style="background:#dcfce7;color:#15803d">W</div>
+        <div class="lb-info">
+          <div class="lb-name">writer.eth</div>
+          <div class="lb-addr">0x3a5e…91c2</div>
+        </div>
+        <div>
+          <div class="lb-earn">1.420 USDC</div>
+          <div class="lb-reads">389 okuma</div>
+        </div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank" style="color:#d1d5db">5</div>
+        <div class="lb-dot" style="background:#ffe4e6;color:#be123c">D</div>
+        <div class="lb-info">
+          <div class="lb-name">defidev.eth</div>
+          <div class="lb-addr">0x1b7c…44f9</div>
+        </div>
+        <div>
+          <div class="lb-earn">980 USDC</div>
+          <div class="lb-reads">287 okuma</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border-top:1.5px solid #111;padding:1rem 1.5rem;max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+  <div class="footer-logo">base<span>note</span></div>
+  <div class="footer-links">
+    <a>Hakkında</a>
+    <a>Yazar rehberi</a>
+    <a>Kasa</a>
+    <a>Yardım</a>
+  </div>
+  <div style="font-family:system-ui,sans-serif;font-size:.7rem;color:#bbb">Base blockchain · x402 · USDC · EVM</div>
+</div>
+
+<!-- ARTICLE MODAL -->
+<div class="overlay" id="am" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('am').classList.remove('open')">&#x2715;</button>
+    <div class="modal-tag" id="m-tag"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-author" id="m-author"></div>
+    <div class="modal-preview" id="m-preview"></div>
+    <div class="modal-x402">
+      <span>x402 &mdash; Base ağı &mdash; USDC</span>
+      <span class="x402-label" id="m-price"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-pay" id="pay-btn" onclick="doPay()">Oku</button>
+      <button class="btn-cancel" onclick="document.getElementById('am').classList.remove('open')">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- WALLET MODAL -->
+<div class="overlay" id="wm" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:360px">
+    <button class="modal-close" onclick="document.getElementById('wm').classList.remove('open')">&#x2715;</button>
+    <div class="wm-title">Cüzdan bağla</div>
+    <div class="wm-sub">Base ağında EVM uyumlu herhangi bir cüzdanla devam et. Ödemeler USDC ile yapılır.</div>
+    <div class="wm-option featured" onclick="connect('Coinbase Wallet','0x4a2b…f8c1')">
+      <div class="wm-icon" style="background:#0052FF;color:#fff">CB</div>
+      <div><div class="wm-name">Coinbase Wallet</div><div class="wm-desc">Base App ile tam entegrasyon</div></div>
+      <div class="wm-badge">Önerilen</div>
+    </div>
+    <div class="wm-option" onclick="connect('MetaMask','0x9e1f…3ab2')">
+      <div class="wm-icon">MM</div>
+      <div><div class="wm-name">MetaMask</div><div class="wm-desc">EVM tarayıcı cüzdanı</div></div>
+    </div>
+    <div class="wm-option" onclick="connect('WalletConnect','0x7c8d…22a4')">
+      <div class="wm-icon">WC</div>
+      <div><div class="wm-name">WalletConnect</div><div class="wm-desc">300+ mobil cüzdan</div></div>
+    </div>
+    <div class="wm-option" onclick="connect('Diğer','0x3a5e…91c2')">
+      <div class="wm-icon">EVM</div>
+      <div><div class="wm-name">Diğer EVM cüzdanlar</div><div class="wm-desc">Rabby, Frame ve diğerleri</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(title, author, tag, price, preview) {
+  document.getElementById('m-title').textContent = title;
+  document.getElementById('m-author').textContent = 'Yazar: ' + author + '.base.eth';
+  document.getElementById('m-tag').textContent = tag;
+  document.getElementById('m-price').textContent = price;
+  document.getElementById('m-preview').textContent = preview;
+  document.getElementById('pay-btn').textContent = 'Oku — ' + price;
+  document.getElementById('pay-btn').style.background = '#0052FF';
+  document.getElementById('pay-btn').disabled = false;
+  document.getElementById('am').classList.add('open');
+}
+
+function doPay() {
+  const btn = document.getElementById('pay-btn');
+  btn.textContent = 'Onaylanıyor…';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Ödendi — içerik açılıyor';
+    btn.style.background = '#166534';
+    setTimeout(() => {
+      document.getElementById('am').classList.remove('open');
+    }, 1200);
+  }, 1100);
+}
+
+function connect(name, addr) {
+  const pill = document.getElementById('walletBtn');
+  pill.innerHTML = '<div class="w-dot"></div> ' + addr;
+  document.getElementById('wm').classList.remove('open');
+}
+
+let s = 18 * 86400 + 4 * 3600 + 32 * 60;
+setInterval(() => {
+  s--;
+  if (s < 0) s = 0;
+  const g = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const el = document.getElementById('cdown');
+  if (el) el.textContent = g + 'g ' + String(h).padStart(2,'0') + 's ' + String(m).padStart(2,'0') + 'd';
+}, 1000);
+</script>
+</body>
+</html>
