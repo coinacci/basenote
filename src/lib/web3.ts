@@ -1,16 +1,13 @@
 import { http, createConfig } from "wagmi";
 import { base, baseSepolia } from "wagmi/chains";
-import { coinbaseWallet, metaMask, walletConnect } from "wagmi/connectors";
+import { metaMask, walletConnect, injected } from "wagmi/connectors";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "";
 
 export const wagmiConfig = createConfig({
   chains: [baseSepolia, base],
   connectors: [
-    coinbaseWallet({
-      appName: "basenote",
-      preference: "smartWalletOnly", // Base App / Smart Wallet öncelikli
-    }),
+    injected(),
     metaMask(),
     walletConnect({ projectId }),
   ],
@@ -20,7 +17,6 @@ export const wagmiConfig = createConfig({
   },
 });
 
-// Aktif chain — env'den okur
 export const ACTIVE_CHAIN_ID = parseInt(
   process.env.NEXT_PUBLIC_CHAIN_ID || "84532"
 );
