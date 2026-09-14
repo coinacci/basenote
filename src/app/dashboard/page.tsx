@@ -27,6 +27,7 @@ function saveArticle(article: Article) {
 
 export default function DashboardPage() {
   const { address, isConnected } = useAccount();
+  const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
@@ -35,6 +36,8 @@ export default function DashboardPage() {
   const [msg, setMsg] = useState("");
   const [myArticles, setMyArticles] = useState<Article[]>([]);
 
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     if (address) setMyArticles(loadMyArticles(address));
   }, [address]);
@@ -42,7 +45,6 @@ export default function DashboardPage() {
   const handlePublish = () => {
     if (!title || !content || !price || !address) return;
     setMsg("");
-
     const id = generateId();
     const article: Article = {
       id,
@@ -57,12 +59,13 @@ export default function DashboardPage() {
       category,
       publishedAt: Math.floor(Date.now() / 1000),
     };
-
     saveArticle(article);
     setMyArticles(loadMyArticles(address));
     setMsg("Yazi yayinlandi!");
     setTitle(""); setExcerpt(""); setContent(""); setPrice("1");
   };
+
+  if (!mounted) return null;
 
   if (!isConnected) {
     return (
@@ -101,15 +104,7 @@ export default function DashboardPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".75rem" }}>
             <div>
               <label className="form-label">Fiyat (USDC)</label>
-              <input
-                className="form-input"
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="orn: 2"
-              />
+              <input className="form-input" type="number" min="0.1" step="0.1" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="orn: 2" />
             </div>
             <div>
               <label className="form-label">Kategori</label>
