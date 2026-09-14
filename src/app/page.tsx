@@ -37,10 +37,10 @@ export default function HomePage() {
           </div>
         </div>
         <div className="main" style={{ paddingTop: "4rem", textAlign: "center" }}>
-          <div style={{ fontFamily: "Lora, Georgia, serif", fontSize: "1.4rem", color: "var(--text)", marginBottom: "1rem" }}>
+          <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.8rem", color: "var(--ink)", marginBottom: "1rem", textTransform: "uppercase" }}>
             Henuz yazi yok.
           </div>
-          <div style={{ fontFamily: "system-ui", fontSize: ".85rem", color: "var(--text-muted)", marginBottom: "2rem" }}>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: ".85rem", color: "var(--muted)", marginBottom: "2rem" }}>
             Ilk yaziyi yazmak ister misin?
           </div>
           <a className="btn-write" href="/dashboard" style={{ padding: ".6rem 1.5rem", display: "inline-block" }}>
@@ -57,12 +57,15 @@ export default function HomePage() {
       <div className="date-bar">
         <div className="date-inner">
           <span>14 Eylul 2026</span>
-          <span>Kasa bu ay: <span className="t-num">—</span> — sonraki dagitim yaklisiyor</span>
+          <span>KASA BU AY: <span className="t-num">— USDC</span> — 18 GUNDE DAGITILACAK</span>
         </div>
       </div>
 
-      <div className="main">
-        <div className="section-label">One cikan</div>
+      <div className="main" style={{ paddingTop: "1.5rem" }}>
+        <div style={{ background: "var(--gold)", padding: ".4rem .75rem", marginBottom: "1.5rem", display: "inline-block" }}>
+          <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>One Cikan</span>
+        </div>
+
         {featured && (
           <div className="featured-row">
             <div className="featured-main">
@@ -76,7 +79,7 @@ export default function HomePage() {
                   <span className="read-time">&nbsp;·&nbsp;8 dk okuma</span>
                 </div>
                 <div className="price-tag" onClick={() => openArticle(featured)}>
-                  {purchased.has(featured.id) ? "Okundu" : `${usdcToHuman(featured.priceUsdc)} USDC`}
+                  {purchased.has(featured.id) ? "✓ OKUNDU" : `${usdcToHuman(featured.priceUsdc)} USDC`}
                 </div>
               </div>
             </div>
@@ -87,7 +90,7 @@ export default function HomePage() {
                     <div className="sidebar-tag">{a.category}</div>
                     <div className="sidebar-title">{a.title}</div>
                     <div className="sidebar-meta">
-                      <span className="sidebar-author">{a.authorAlias}</span>
+                      <span className="sidebar-author">{a.authorAlias} · {Math.ceil(a.excerpt.length / 200 + 3)} dk</span>
                       <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
                         {purchased.has(a.id) ? "✓" : `${usdcToHuman(a.priceUsdc)} USDC`}
                       </div>
@@ -98,26 +101,29 @@ export default function HomePage() {
             </div>
           </div>
         )}
+      </div>
 
+      <div style={{ background: "var(--gold)", padding: ".4rem 1.5rem", margin: "1.5rem 0 0" }}>
+        <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>Bu Hafta</span>
+      </div>
+
+      <div className="main">
         {middle.length > 0 && (
-          <>
-            <div className="section-label">Bu hafta</div>
-            <div className="mid-section">
-              {middle.map((a) => (
-                <div key={a.id} className="mid-card" onClick={() => openArticle(a)}>
-                  <div className="mid-tag">{a.category}</div>
-                  <div className="mid-title">{a.title}</div>
-                  <div className="mid-dek">{a.excerpt}</div>
-                  <div className="article-meta">
-                    <span className="author-name" style={{ fontSize: ".72rem" }}>{a.authorAlias}</span>
-                    <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
-                      {purchased.has(a.id) ? "Okundu" : `${usdcToHuman(a.priceUsdc)} USDC`}
-                    </div>
+          <div className="mid-section">
+            {middle.map((a) => (
+              <div key={a.id} className="mid-card" onClick={() => openArticle(a)}>
+                <div className="mid-tag">{a.category}</div>
+                <div className="mid-title">{a.title}</div>
+                <div className="mid-dek">{a.excerpt}</div>
+                <div className="article-meta">
+                  <span className="author-name" style={{ fontSize: ".72rem" }}>{a.authorAlias} · {Math.ceil(a.excerpt.length / 200 + 3)} dk</span>
+                  <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
+                    {purchased.has(a.id) ? "✓ OKUNDU" : `${usdcToHuman(a.priceUsdc)} USDC`}
                   </div>
                 </div>
-              ))}
-            </div>
-          </>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -126,11 +132,11 @@ export default function HomePage() {
       <div className="main">
         <div className="bottom-row">
           <div>
-            <div className="col-label">Trending yazilar</div>
+            <div className="col-label">Trending Yazilar</div>
             {sorted.map((a, i) => (
               <div key={a.id} className="list-item" onClick={() => openArticle(a)}>
                 <div className="list-num">{i + 1}</div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div className="list-title">{a.title} <span className="list-price">{usdcToHuman(a.priceUsdc)} USDC</span></div>
                   <div className="list-meta-txt">{a.authorAlias} · {a.readCount} okuma</div>
                 </div>
@@ -138,9 +144,9 @@ export default function HomePage() {
             ))}
           </div>
           <div>
-            <div className="col-label">Bu ay — yazar siralaması</div>
-            <div style={{ fontFamily: "system-ui", fontSize: ".85rem", color: "var(--text-muted)", paddingTop: ".5rem" }}>
-              Ilk yazılar yayinlandiktan sonra siralama olusacak.
+            <div className="col-label">Bu Ay — Yazar Siralaması</div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: ".85rem", color: "var(--muted)", paddingTop: ".5rem" }}>
+              Ilk yazilar yayinlandiktan sonra siralama olusacak.
             </div>
           </div>
         </div>

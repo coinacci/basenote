@@ -22,11 +22,11 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
   };
 
   const statusLabel = {
-    idle: `Oku — ${priceHuman} USDC`,
-    approving: "USDC onaylanıyor…",
-    purchasing: "İşlem gönderiliyor…",
-    success: "Ödendi ✓",
-    error: "Tekrar dene",
+    idle: `OKU — ${priceHuman} USDC`,
+    approving: "USDC ONAYLANIYOR...",
+    purchasing: "ISLEM GONDERILIYOR...",
+    success: "ODENDI ✓",
+    error: "TEKRAR DENE",
   }[status];
 
   return (
@@ -37,18 +37,13 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
         <div className="modal-title">{article.title}</div>
         <div className="modal-author">Yazar: {article.authorAlias}</div>
         <div className="modal-preview">{article.excerpt}</div>
-
         <div className="modal-x402">
-          <span>x402 — Base ağı — USDC</span>
+          <span>x402 — Base agi — USDC</span>
           <span className="x402-label">{priceHuman} USDC</span>
         </div>
-
-        {error && (
-          <div className="modal-error">{error}</div>
-        )}
-
+        {error && <div className="modal-error">{error}</div>}
         {!address ? (
-          <div className="modal-warn">Önce cüzdanını bağla.</div>
+          <div className="modal-warn">Once cuzdanini bagla.</div>
         ) : (
           <div className="modal-actions">
             <button
@@ -57,12 +52,12 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
               disabled={status === "approving" || status === "purchasing" || status === "success"}
               style={{
                 background: status === "success" ? "#166534" :
-                            status === "error" ? "#991b1b" : "#0052FF",
+                            status === "error" ? "#991b1b" : "var(--crimson)",
               }}
             >
               {statusLabel}
             </button>
-            <button className="btn-cancel" onClick={onClose}>Kapat</button>
+            <button className="btn-cancel" onClick={onClose}>KAPAT</button>
           </div>
         )}
       </div>
