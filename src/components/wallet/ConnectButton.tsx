@@ -4,14 +4,14 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useState, useEffect } from "react";
 import { ACTIVE_CHAIN_ID } from "@/lib/web3";
 
-const WALLET_MAP: Record<string, { icon: string; name: string; featured?: boolean }> = {
-  "coinbaseWalletSDK": { icon: "CB", name: "Coinbase Wallet", featured: true },
-  "coinbaseWallet":    { icon: "CB", name: "Coinbase Wallet", featured: true },
-  "injected":          { icon: "🌐", name: "Browser Wallet" },
-  "metaMask":          { icon: "MM", name: "MetaMask" },
-  "walletConnect":     { icon: "WC", name: "WalletConnect" },
-  "phantom":           { icon: "👻", name: "Phantom" },
-  "infinex":           { icon: "IX", name: "Infinex" },
+const WALLET_MAP: Record<string, { name: string; featured?: boolean }> = {
+  "coinbaseWalletSDK": { name: "Coinbase Wallet", featured: true },
+  "coinbaseWallet":    { name: "Coinbase Wallet", featured: true },
+  "injected":          { name: "Browser Wallet" },
+  "metaMask":          { name: "MetaMask" },
+  "walletConnect":     { name: "WalletConnect" },
+  "phantom":           { name: "Phantom" },
+  "infinex":           { name: "Infinex" },
 };
 
 const ALLOWED = ["coinbaseWalletSDK", "coinbaseWallet", "injected", "walletConnect", "phantom", "infinex"];
@@ -24,11 +24,6 @@ export function ConnectButton() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
-
-  // Debug: connector ID'lerini logla
-  useEffect(() => {
-    if (mounted) console.log("Connectors:", connectors.map(c => ({ id: c.id, name: c.name })));
-  }, [mounted, connectors]);
 
   if (!mounted) {
     return (
@@ -79,7 +74,7 @@ export function ConnectButton() {
       {open && (
         <div className="wallet-dropdown">
           {filtered.map((connector) => {
-            const meta = WALLET_MAP[connector.id] || { icon: "EVM", name: connector.name };
+            const meta = WALLET_MAP[connector.id] || { name: connector.name };
             return (
               <button
                 key={connector.id}
@@ -89,9 +84,6 @@ export function ConnectButton() {
                   setOpen(false);
                 }}
               >
-                <span className="wd-icon" style={meta.featured ? { background: "#0052FF", color: "#fff" } : {}}>
-                  {meta.icon}
-                </span>
                 <div className="wd-name">{meta.name}</div>
                 {meta.featured && <span className="wd-badge">Recommended</span>}
               </button>
