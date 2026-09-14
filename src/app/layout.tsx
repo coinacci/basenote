@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/layout/Providers";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,7 +30,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <a href="/treasury">Treasury</a>
                 </div>
                 <div className="nav-right">
-                  <ThemeToggle />
                   <ConnectButton />
                   <a className="btn-write" href="/dashboard">Write</a>
                 </div>
