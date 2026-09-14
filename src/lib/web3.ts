@@ -1,12 +1,16 @@
 import { http, createConfig } from "wagmi";
 import { base, baseSepolia } from "wagmi/chains";
-import { metaMask, walletConnect, injected } from "wagmi/connectors";
+import { metaMask, walletConnect, injected, coinbaseWallet } from "wagmi/connectors";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "";
 
 export const wagmiConfig = createConfig({
   chains: [baseSepolia, base],
   connectors: [
+    coinbaseWallet({
+      appName: "basenote",
+      appLogoUrl: "https://basenotes.vercel.app/favicon.ico",
+    }),
     injected(),
     metaMask(),
     walletConnect({ projectId }),

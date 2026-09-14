@@ -34,7 +34,7 @@ export function ConnectButton() {
               <div className="wd-warning">
                 Base ağına geçin (Chain ID: {ACTIVE_CHAIN_ID})
               </div>
-            )}
+           )}
             <button className="wd-disconnect" onClick={() => { disconnect(); setOpen(false); }}>
               Bağlantıyı kes
             </button>
