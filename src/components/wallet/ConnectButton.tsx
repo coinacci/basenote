@@ -4,6 +4,17 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useState, useEffect } from "react";
 import { ACTIVE_CHAIN_ID } from "@/lib/web3";
 
+const WALLET_MAP: Record<string, { icon: string; name: string; featured?: boolean }> = {
+  "coinbaseWallet":   { icon: "CB", name: "Coinbase Wallet", featured: true },
+  "injected":         { icon: "🌐", name: "Browser Wallet" },
+  "metaMask":         { icon: "MM", name: "MetaMask" },
+  "walletConnect":    { icon: "WC", name: "WalletConnect" },
+  "phantom":          { icon: "👻", name: "Phantom" },
+  "infinex":          { icon: "IX", name: "Infinex" },
+};
+
+const ALLOWED = ["coinbaseWallet", "injected", "walletConnect", "phantom", "infinex"];
+
 export function ConnectButton() {
   const { address, isConnected, chain } = useAccount();
   const { connectAsync, connectors } = useConnect();
@@ -25,12 +36,15 @@ export function ConnectButton() {
   const shortAddr = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   const wrongChain = isConnected && chain?.id !== ACTIVE_CHAIN_ID;
 
-  const getLabel = (id: string) => {
-    if (id === "coinbaseWallet") return { icon: "CB", name: "Coinbase Wallet", sub: "Base App support", featured: true };
-    if (id === "metaMask") return { icon: "MM", name: "MetaMask", sub: "EVM browser wallet", featured: false };
-    if (id === "walletConnect") return { icon: "WC", name: "WalletConnect", sub: "300+ mobile wallets", featured: false };
-    return { icon: "EVM", name: "Other EVM Wallets", sub: "Rabby and others", featured: false };
-  };
+  // Sadece izin verilen connector'ları filtrele, tekrar edenleri kaldır
+  const seen = new Set<string>();
+  const filtered = connectors.filter((c) => {
+    const id = c.id;
+    if (!ALLOWED.includes(id)) return false;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 
   if (isConnected) {
     return (
@@ -60,25 +74,22 @@ export function ConnectButton() {
       </button>
       {open && (
         <div className="wallet-dropdown">
-          {connectors.map((connector) => {
-            const label = getLabel(connector.id);
+          {filtered.map((connector) => {
+            const meta = WALLET_MAP[connector.id] || { icon: "EVM", name: connector.name };
             return (
               <button
                 key={connector.id}
-                className={`wd-option ${label.featured ? "wd-featured" : ""}`}
+                className={`wd-option ${meta.featured ? "wd-featured" : ""}`}
                 onClick={async () => {
                   await connectAsync({ connector, chainId: ACTIVE_CHAIN_ID });
                   setOpen(false);
                 }}
               >
-                <span className="wd-icon" style={label.featured ? { background: "#0052FF", color: "#fff" } : {}}>
-                  {label.icon}
+                <span className="wd-icon" style={meta.featured ? { background: "#0052FF", color: "#fff" } : {}}>
+                  {meta.icon}
                 </span>
-                <span>
-                  <div className="wd-name">{label.name}</div>
-                  <div className="wd-sub">{label.sub}</div>
-                </span>
-                {label.featured && <span className="wd-badge">Recommended</span>}
+                <div className="wd-name">{meta.name}</div>
+                {meta.featured && <span className="wd-badge">Recommended</span>}
               </button>
             );
           })}
