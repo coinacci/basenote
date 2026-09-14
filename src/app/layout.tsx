@@ -6,13 +6,13 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BASENOTE — Base uzerinde icerik platformu",
-  description: "Yazarlar yazar, okuyucular x402 ile USDC oder.",
+  title: "BASENOTE — Content platform on Base",
+  description: "Writers publish, readers pay with USDC via x402, community shares the treasury.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -24,16 +24,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="nav-inner">
                 <a className="logo" href="/">BASE<span>NOTE</span></a>
                 <div className="nav-links">
-                  <a href="/">Kesfet</a>
+                  <a href="/">Explore</a>
                   <a href="/?cat=defi">DeFi</a>
                   <a href="/?cat=ai">AI</a>
-                  <a href="/?cat=rehber">Rehberler</a>
-                  <a href="/treasury">Kasa</a>
+                  <a href="/?cat=guides">Guides</a>
+                  <a href="/treasury">Treasury</a>
                 </div>
                 <div className="nav-right">
                   <ThemeToggle />
                   <ConnectButton />
-                  <a className="btn-write" href="/dashboard">Yazi Yaz</a>
+                  <a className="btn-write" href="/dashboard">Write</a>
                 </div>
               </div>
             </nav>
@@ -41,10 +41,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <footer>
               <div className="footer-logo">BASE<span style={{ color: "var(--gold)" }}>NOTE</span></div>
               <div className="footer-links">
-                <a href="#">Hakkinda</a>
-                <a href="/dashboard">Yazar Rehberi</a>
-                <a href="/treasury">Kasa</a>
-                <a href="#">Yardim</a>
+                <a href="#">About</a>
+                <a href="/dashboard">Writer Guide</a>
+                <a href="/treasury">Treasury</a>
+                <a href="#">Help</a>
               </div>
               <div style={{ fontFamily: "var(--font-body)", fontSize: ".7rem", color: "var(--muted)" }}>
                 Base blockchain · x402 · USDC · EVM

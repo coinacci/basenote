@@ -32,19 +32,19 @@ export default function HomePage() {
       <>
         <div className="date-bar">
           <div className="date-inner">
-            <span>14 Eylul 2026</span>
-            <span>Kasa bu ay: <span className="t-num">—</span></span>
+            <span>September 14, 2026</span>
+            <span>Treasury this month: <span className="t-num">—</span></span>
           </div>
         </div>
         <div className="main" style={{ paddingTop: "4rem", textAlign: "center" }}>
           <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.8rem", color: "var(--ink)", marginBottom: "1rem", textTransform: "uppercase" }}>
-            Henuz yazi yok.
+            No articles yet.
           </div>
           <div style={{ fontFamily: "var(--font-body)", fontSize: ".85rem", color: "var(--muted)", marginBottom: "2rem" }}>
-            Ilk yaziyi yazmak ister misin?
+            Be the first to publish.
           </div>
           <a className="btn-write" href="/dashboard" style={{ padding: ".6rem 1.5rem", display: "inline-block" }}>
-            Yazi yaz
+            Write
           </a>
         </div>
         <TreasuryStrip />
@@ -56,14 +56,14 @@ export default function HomePage() {
     <>
       <div className="date-bar">
         <div className="date-inner">
-          <span>14 Eylul 2026</span>
-          <span>KASA BU AY: <span className="t-num">— USDC</span> — 18 GUNDE DAGITILACAK</span>
+          <span>September 14, 2026</span>
+          <span>TREASURY THIS MONTH: <span className="t-num">— USDC</span> — DISTRIBUTED IN 18 DAYS</span>
         </div>
       </div>
 
       <div className="main" style={{ paddingTop: "1.5rem" }}>
         <div style={{ background: "var(--gold)", padding: ".4rem .75rem", marginBottom: "1.5rem", display: "inline-block" }}>
-          <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>One Cikan</span>
+          <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>Featured</span>
         </div>
 
         {featured && (
@@ -76,10 +76,10 @@ export default function HomePage() {
                 <div className="meta-left">
                   <div className="author-dot">{featured.authorAlias[0].toUpperCase()}</div>
                   <span className="author-name">{featured.authorAlias}</span>
-                  <span className="read-time">&nbsp;·&nbsp;8 dk okuma</span>
+                  <span className="read-time">&nbsp;·&nbsp;8 min read</span>
                 </div>
                 <div className="price-tag" onClick={() => openArticle(featured)}>
-                  {purchased.has(featured.id) ? "✓ OKUNDU" : `${usdcToHuman(featured.priceUsdc)} USDC`}
+                  {purchased.has(featured.id) ? "✓ READ" : `${usdcToHuman(featured.priceUsdc)} USDC`}
                 </div>
               </div>
             </div>
@@ -90,7 +90,7 @@ export default function HomePage() {
                     <div className="sidebar-tag">{a.category}</div>
                     <div className="sidebar-title">{a.title}</div>
                     <div className="sidebar-meta">
-                      <span className="sidebar-author">{a.authorAlias} · {Math.ceil(a.excerpt.length / 200 + 3)} dk</span>
+                      <span className="sidebar-author">{a.authorAlias} · {Math.ceil(a.excerpt.length / 200 + 3)} min</span>
                       <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
                         {purchased.has(a.id) ? "✓" : `${usdcToHuman(a.priceUsdc)} USDC`}
                       </div>
@@ -104,7 +104,7 @@ export default function HomePage() {
       </div>
 
       <div style={{ background: "var(--gold)", padding: ".4rem 1.5rem", margin: "1.5rem 0 0" }}>
-        <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>Bu Hafta</span>
+        <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>This Week</span>
       </div>
 
       <div className="main">
@@ -116,9 +116,9 @@ export default function HomePage() {
                 <div className="mid-title">{a.title}</div>
                 <div className="mid-dek">{a.excerpt}</div>
                 <div className="article-meta">
-                  <span className="author-name" style={{ fontSize: ".72rem" }}>{a.authorAlias} · {Math.ceil(a.excerpt.length / 200 + 3)} dk</span>
+                  <span className="author-name" style={{ fontSize: ".72rem" }}>{a.authorAlias} · {Math.ceil(a.excerpt.length / 200 + 3)} min</span>
                   <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
-                    {purchased.has(a.id) ? "✓ OKUNDU" : `${usdcToHuman(a.priceUsdc)} USDC`}
+                    {purchased.has(a.id) ? "✓ READ" : `${usdcToHuman(a.priceUsdc)} USDC`}
                   </div>
                 </div>
               </div>
@@ -132,21 +132,21 @@ export default function HomePage() {
       <div className="main">
         <div className="bottom-row">
           <div>
-            <div className="col-label">Trending Yazilar</div>
+            <div className="col-label">Trending</div>
             {sorted.map((a, i) => (
               <div key={a.id} className="list-item" onClick={() => openArticle(a)}>
                 <div className="list-num">{i + 1}</div>
                 <div style={{ flex: 1 }}>
                   <div className="list-title">{a.title} <span className="list-price">{usdcToHuman(a.priceUsdc)} USDC</span></div>
-                  <div className="list-meta-txt">{a.authorAlias} · {a.readCount} okuma</div>
+                  <div className="list-meta-txt">{a.authorAlias} · {a.readCount} reads</div>
                 </div>
               </div>
             ))}
           </div>
           <div>
-            <div className="col-label">Bu Ay — Yazar Siralaması</div>
+            <div className="col-label">Top Authors This Month</div>
             <div style={{ fontFamily: "var(--font-body)", fontSize: ".85rem", color: "var(--muted)", paddingTop: ".5rem" }}>
-              Ilk yazilar yayinlandiktan sonra siralama olusacak.
+              Rankings will appear once articles are published.
             </div>
           </div>
         </div>

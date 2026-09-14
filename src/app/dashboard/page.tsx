@@ -41,7 +41,7 @@ export default function DashboardPage() {
       publishedAt: Math.floor(Date.now() / 1000),
     };
     setMyArticles((prev) => [article, ...prev]);
-    setMsg("Yazi yayinlandi!");
+    setMsg("Article published!");
     setTitle(""); setExcerpt(""); setContent(""); setPrice("1");
   };
 
@@ -50,8 +50,8 @@ export default function DashboardPage() {
   if (!isConnected) {
     return (
       <div className="main" style={{ paddingTop: "3rem", textAlign: "center" }}>
-        <div style={{ fontFamily: "system-ui", color: "var(--text-muted)", fontSize: ".9rem" }}>
-          Dashboard a erisim icin cuzdanini bagla.
+        <div style={{ fontFamily: "var(--font-sub)", color: "var(--muted)", fontSize: ".9rem", textTransform: "uppercase", letterSpacing: ".05em" }}>
+          Connect your wallet to access the dashboard.
         </div>
       </div>
     );
@@ -59,37 +59,39 @@ export default function DashboardPage() {
 
   return (
     <div className="main" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
-      <div className="section-label" style={{ marginBottom: "1.5rem" }}>Yazar dashboard u</div>
+      <div style={{ background: "var(--gold)", padding: ".4rem .75rem", marginBottom: "1.5rem", display: "inline-block" }}>
+        <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>Writer Dashboard</span>
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1rem", marginBottom: "2rem" }}>
         {[
-          { label: "Yayinlanan yazi", value: myArticles.length.toString() },
-          { label: "Toplam okuma", value: myArticles.reduce((a, b) => a + b.readCount, 0).toString() },
-          { label: "Cuzdan", value: address?.slice(0, 6) + "..." + address?.slice(-4) },
+          { label: "Articles Published", value: myArticles.length.toString() },
+          { label: "Total Reads", value: myArticles.reduce((a, b) => a + b.readCount, 0).toString() },
+          { label: "Wallet", value: address?.slice(0, 6) + "..." + address?.slice(-4) },
         ].map((s) => (
-          <div key={s.label} style={{ border: "1px solid var(--border)", padding: "1rem 1.2rem" }}>
-            <div style={{ fontFamily: "system-ui", fontSize: ".68rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".3rem" }}>{s.label}</div>
-            <div style={{ fontFamily: "Lora, Georgia, serif", fontSize: "1.1rem", fontWeight: 600, color: "var(--text)" }}>{s.value}</div>
+          <div key={s.label} style={{ border: "1px solid var(--gray-2)", padding: "1rem 1.2rem" }}>
+            <div style={{ fontFamily: "var(--font-sub)", fontSize: ".68rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".3rem" }}>{s.label}</div>
+            <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", color: "var(--ink)" }}>{s.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="col-label" style={{ marginBottom: "1.2rem" }}>Yeni yazi yayinla</div>
-      <div style={{ border: "1px solid var(--border)", padding: "1.5rem", marginBottom: "2rem" }}>
+      <div className="col-label" style={{ marginBottom: "1.2rem" }}>Publish New Article</div>
+      <div style={{ border: "1px solid var(--gray-2)", padding: "1.5rem", marginBottom: "2rem" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
           <div>
-            <label className="form-label">Baslik</label>
-            <input className="form-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Yazi basligi" />
+            <label className="form-label">Title</label>
+            <input className="form-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Article title" />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".75rem" }}>
             <div>
-              <label className="form-label">Fiyat (USDC)</label>
-              <input className="form-input" type="number" min="0.1" step="0.1" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="orn: 2" />
+              <label className="form-label">Price (USDC)</label>
+              <input className="form-input" type="number" min="0.1" step="0.1" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 2" />
             </div>
             <div>
-              <label className="form-label">Kategori</label>
+              <label className="form-label">Category</label>
               <select className="form-input" value={category} onChange={(e) => setCategory(e.target.value)}>
-                {["DeFi", "AI x Web3", "Protokol", "NFT", "Rehber", "Gorus", "Teknik"].map((c) => (
+                {["DeFi", "AI x Web3", "Protocol", "NFT", "Guide", "Opinion", "Technical"].map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
@@ -97,15 +99,15 @@ export default function DashboardPage() {
           </div>
         </div>
         <div style={{ marginBottom: "1rem" }}>
-          <label className="form-label">Ozet</label>
-          <textarea className="form-input" rows={2} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Kisa aciklama (ana sayfada gorunur)" />
+          <label className="form-label">Excerpt</label>
+          <textarea className="form-input" rows={2} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Short description (shown on homepage)" />
         </div>
         <div style={{ marginBottom: "1.2rem" }}>
-          <label className="form-label">Icerik</label>
-          <textarea className="form-input" rows={10} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Yazi icerigi — sadece odeme yapanlar gorecek" />
+          <label className="form-label">Content</label>
+          <textarea className="form-input" rows={10} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Article content — only visible after payment" />
         </div>
         {msg && (
-          <div style={{ fontFamily: "system-ui", fontSize: ".78rem", color: "#166534", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: ".6rem", marginBottom: "1rem" }}>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "#166534", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: ".6rem", marginBottom: "1rem" }}>
             {msg}
           </div>
         )}
@@ -115,19 +117,19 @@ export default function DashboardPage() {
           onClick={handlePublish}
           disabled={!title || !content}
         >
-          Yayinla
+          Publish
         </button>
       </div>
 
-      <div className="col-label" style={{ marginBottom: "1rem" }}>Yazılarım</div>
+      <div className="col-label" style={{ marginBottom: "1rem" }}>My Articles</div>
       {myArticles.length === 0 ? (
-        <div style={{ fontFamily: "system-ui", fontSize: ".85rem", color: "var(--text-muted)" }}>Henuz yazi yok.</div>
+        <div style={{ fontFamily: "var(--font-body)", fontSize: ".85rem", color: "var(--muted)" }}>No articles yet.</div>
       ) : (
         myArticles.map((a) => (
           <div key={a.id} className="list-item">
             <div style={{ flex: 1 }}>
               <div className="list-title">{a.title}</div>
-              <div className="list-meta-txt">{a.category} · {a.readCount} okuma · {usdcToHuman(a.priceUsdc)} USDC</div>
+              <div className="list-meta-txt">{a.category} · {a.readCount} reads · {usdcToHuman(a.priceUsdc)} USDC</div>
             </div>
             <div className="list-price">{usdcToHuman(a.priceUsdc)} USDC</div>
           </div>

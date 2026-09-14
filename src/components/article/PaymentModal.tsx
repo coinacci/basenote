@@ -22,11 +22,11 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
   };
 
   const statusLabel = {
-    idle: `OKU — ${priceHuman} USDC`,
-    approving: "USDC ONAYLANIYOR...",
-    purchasing: "ISLEM GONDERILIYOR...",
-    success: "ODENDI ✓",
-    error: "TEKRAR DENE",
+    idle: `READ — ${priceHuman} USDC`,
+    approving: "APPROVING USDC...",
+    purchasing: "SENDING TRANSACTION...",
+    success: "PAID ✓",
+    error: "TRY AGAIN",
   }[status];
 
   return (
@@ -35,15 +35,15 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-tag">{article.category}</div>
         <div className="modal-title">{article.title}</div>
-        <div className="modal-author">Yazar: {article.authorAlias}</div>
+        <div className="modal-author">By {article.authorAlias}</div>
         <div className="modal-preview">{article.excerpt}</div>
         <div className="modal-x402">
-          <span>x402 — Base agi — USDC</span>
+          <span>x402 — Base network — USDC</span>
           <span className="x402-label">{priceHuman} USDC</span>
         </div>
         {error && <div className="modal-error">{error}</div>}
         {!address ? (
-          <div className="modal-warn">Once cuzdanini bagla.</div>
+          <div className="modal-warn">Connect your wallet to continue.</div>
         ) : (
           <div className="modal-actions">
             <button
@@ -57,7 +57,7 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
             >
               {statusLabel}
             </button>
-            <button className="btn-cancel" onClick={onClose}>KAPAT</button>
+            <button className="btn-cancel" onClick={onClose}>CLOSE</button>
           </div>
         )}
       </div>

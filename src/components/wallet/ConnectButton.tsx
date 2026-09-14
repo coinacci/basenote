@@ -16,8 +16,8 @@ export function ConnectButton() {
   if (!mounted) {
     return (
       <button className="wallet-pill">
-        <div className="w-dot" style={{ background: "#94a3b8" }} />
-        Cuzdan bagla
+        <div className="w-dot" style={{ background: "#555" }} />
+        Connect Wallet
       </button>
     );
   }
@@ -26,10 +26,10 @@ export function ConnectButton() {
   const wrongChain = isConnected && chain?.id !== ACTIVE_CHAIN_ID;
 
   const getLabel = (id: string) => {
-    if (id === "coinbaseWallet") return { icon: "CB", name: "Coinbase Wallet", sub: "Base App destegi", featured: true };
-    if (id === "metaMask") return { icon: "MM", name: "MetaMask", sub: "EVM tarayici cuzdani", featured: false };
-    if (id === "walletConnect") return { icon: "WC", name: "WalletConnect", sub: "300+ mobil cuzdan", featured: false };
-    return { icon: "EVM", name: "Diger EVM cuzdanlar", sub: "Rabby ve digerleri", featured: false };
+    if (id === "coinbaseWallet") return { icon: "CB", name: "Coinbase Wallet", sub: "Base App support", featured: true };
+    if (id === "metaMask") return { icon: "MM", name: "MetaMask", sub: "EVM browser wallet", featured: false };
+    if (id === "walletConnect") return { icon: "WC", name: "WalletConnect", sub: "300+ mobile wallets", featured: false };
+    return { icon: "EVM", name: "Other EVM Wallets", sub: "Rabby and others", featured: false };
   };
 
   if (isConnected) {
@@ -37,14 +37,14 @@ export function ConnectButton() {
       <div style={{ position: "relative" }}>
         <button className="wallet-pill" onClick={() => setOpen((o) => !o)}>
           <div className="w-dot" style={{ background: wrongChain ? "#ef4444" : "#22c55e" }} />
-          {wrongChain ? "Yanlis ag" : shortAddr}
+          {wrongChain ? "Wrong Network" : shortAddr}
         </button>
         {open && (
           <div className="wallet-dropdown">
             <div className="wd-addr">{address}</div>
-            {wrongChain && <div className="wd-warning">Base agina gecin</div>}
+            {wrongChain && <div className="wd-warning">Please switch to Base network</div>}
             <button className="wd-disconnect" onClick={() => { disconnect(); setOpen(false); }}>
-              Baglantıyi kes
+              Disconnect
             </button>
           </div>
         )}
@@ -55,8 +55,8 @@ export function ConnectButton() {
   return (
     <div style={{ position: "relative" }}>
       <button className="wallet-pill" onClick={() => setOpen((o) => !o)}>
-        <div className="w-dot" style={{ background: "#94a3b8" }} />
-        Cuzdan bagla
+        <div className="w-dot" style={{ background: "#555" }} />
+        Connect Wallet
       </button>
       {open && (
         <div className="wallet-dropdown">
@@ -78,7 +78,7 @@ export function ConnectButton() {
                   <div className="wd-name">{label.name}</div>
                   <div className="wd-sub">{label.sub}</div>
                 </span>
-                {label.featured && <span className="wd-badge">Onerilen</span>}
+                {label.featured && <span className="wd-badge">Recommended</span>}
               </button>
             );
           })}

@@ -8,16 +8,16 @@ export function ThemeToggle() {
   const [open, setOpen] = useState(false);
 
   const options: { value: ThemeMode; label: string; icon: string }[] = [
-    { value: "light", label: "Aydinlik", icon: "☀️" },
-    { value: "dark", label: "Karanlik", icon: "🌙" },
-    { value: "auto", label: "Otomatik", icon: "🕐" },
+    { value: "light", label: "Light", icon: "☀️" },
+    { value: "dark", label: "Dark", icon: "🌙" },
+    { value: "auto", label: "Auto", icon: "🕐" },
   ];
 
   const current = options.find((o) => o.value === mode) || options[2];
 
   return (
     <div style={{ position: "relative" }}>
-      <button className="theme-toggle-btn" onClick={() => setOpen((o) => !o)} title="Tema sec">
+      <button className="theme-toggle-btn" onClick={() => setOpen((o) => !o)} title="Theme">
         {current.icon}
       </button>
       {open && (
