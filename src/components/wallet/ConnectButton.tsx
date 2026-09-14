@@ -5,15 +5,16 @@ import { useState, useEffect } from "react";
 import { ACTIVE_CHAIN_ID } from "@/lib/web3";
 
 const WALLET_MAP: Record<string, { icon: string; name: string; featured?: boolean }> = {
-  "coinbaseWallet":   { icon: "CB", name: "Coinbase Wallet", featured: true },
-  "injected":         { icon: "🌐", name: "Browser Wallet" },
-  "metaMask":         { icon: "MM", name: "MetaMask" },
-  "walletConnect":    { icon: "WC", name: "WalletConnect" },
-  "phantom":          { icon: "👻", name: "Phantom" },
-  "infinex":          { icon: "IX", name: "Infinex" },
+  "coinbaseWalletSDK": { icon: "CB", name: "Coinbase Wallet", featured: true },
+  "coinbaseWallet":    { icon: "CB", name: "Coinbase Wallet", featured: true },
+  "injected":          { icon: "🌐", name: "Browser Wallet" },
+  "metaMask":          { icon: "MM", name: "MetaMask" },
+  "walletConnect":     { icon: "WC", name: "WalletConnect" },
+  "phantom":           { icon: "👻", name: "Phantom" },
+  "infinex":           { icon: "IX", name: "Infinex" },
 };
 
-const ALLOWED = ["coinbaseWallet", "injected", "walletConnect", "phantom", "infinex"];
+const ALLOWED = ["coinbaseWalletSDK", "coinbaseWallet", "injected", "walletConnect", "phantom", "infinex"];
 
 export function ConnectButton() {
   const { address, isConnected, chain } = useAccount();
@@ -23,6 +24,11 @@ export function ConnectButton() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Debug: connector ID'lerini logla
+  useEffect(() => {
+    if (mounted) console.log("Connectors:", connectors.map(c => ({ id: c.id, name: c.name })));
+  }, [mounted, connectors]);
 
   if (!mounted) {
     return (
@@ -36,13 +42,11 @@ export function ConnectButton() {
   const shortAddr = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   const wrongChain = isConnected && chain?.id !== ACTIVE_CHAIN_ID;
 
-  // Sadece izin verilen connector'ları filtrele, tekrar edenleri kaldır
   const seen = new Set<string>();
   const filtered = connectors.filter((c) => {
-    const id = c.id;
-    if (!ALLOWED.includes(id)) return false;
-    if (seen.has(id)) return false;
-    seen.add(id);
+    if (!ALLOWED.includes(c.id)) return false;
+    if (seen.has(c.id)) return false;
+    seen.add(c.id);
     return true;
   });
 
