@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
       "@x402/svm/exact/client": false,
       "@x402/svm": false,
       "@base-org/account": false,
+      "pino-pretty": false,
+      "@react-native-async-storage/async-storage": false,
     };
     return config;
   },
