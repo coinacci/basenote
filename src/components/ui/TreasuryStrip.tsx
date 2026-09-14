@@ -21,11 +21,11 @@ export function TreasuryStrip() {
         <div>
           <div className="t-label">Dagitim Orani</div>
           <div className="t-dist">
-            <div className="t-seg-p" style={{ width: "26%" }} />
-            <div className="t-seg-w" style={{ width: "56%" }} />
-            <div className="t-seg-r" style={{ width: "18%" }} />
+            <div className="t-seg-p" style={{ width: "15%" }} />
+            <div className="t-seg-w" style={{ width: "70%" }} />
+            <div className="t-seg-r" style={{ width: "15%" }} />
           </div>
-          <div className="t-dist-label">Platform %26 · Yazarlar %56 · Okuyucular %18</div>
+          <div className="t-dist-label">Platform %15 · Yazarlar %70 · Okuyucular %15</div>
         </div>
         <a className="t-cta" href="/treasury">Kasayi Incele</a>
       </div>

@@ -17,9 +17,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 contract BasenoteTreasury is Ownable, ReentrancyGuard {
     IERC20 public immutable usdc;
 
-    uint256 public constant PLATFORM_BPS  = 2600; // %26
-    uint256 public constant AUTHOR_BPS    = 5600; // %56
-    uint256 public constant READER_BPS    = 1800; // %18
+    uint256 public constant PLATFORM_BPS  = 1500; // %26
+    uint256 public constant AUTHOR_BPS    = 7000; // %56
+    uint256 public constant READER_BPS    = 1500; // %18
     uint256 public constant BPS_DENOM     = 10000;
 
     uint256 public distributionInterval = 30 days;
