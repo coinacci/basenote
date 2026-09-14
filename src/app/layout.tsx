@@ -6,31 +6,16 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "basenote — Base üzerinde icerik platformu",
-  description: "Yazarlar yazar, okuyucular x402 ile USDC oder, topluluk kasa paylasiir.",
+  title: "basenote",
+  description: "Yazarlar yazar, okuyucular x402 ile USDC oder.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr">
+    <html lang="tr" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              try {
-                var mode = localStorage.getItem('basenote_theme') || 'auto';
-                var resolved = mode;
-                if (mode === 'auto') {
-                  var h = new Date().getHours();
-                  resolved = (h >= 7 && h < 21) ? 'light' : 'dark';
-                }
-                document.documentElement.setAttribute('data-theme', resolved);
-              } catch(e) {}
-            })();
-          `
-        }} />
       </head>
       <body>
         <Providers>
