@@ -10,21 +10,6 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
-function loadMyArticles(address: string): Article[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const all = JSON.parse(localStorage.getItem("basenote_articles") || "[]");
-    return all.filter((a: Article) => a.author.toLowerCase() === address.toLowerCase());
-  } catch { return []; }
-}
-
-function saveArticle(article: Article) {
-  if (typeof window === "undefined") return;
-  const all = JSON.parse(localStorage.getItem("basenote_articles") || "[]");
-  all.unshift(article);
-  localStorage.setItem("basenote_articles", JSON.stringify(all));
-}
-
 export default function DashboardPage() {
   const { address, isConnected } = useAccount();
   const [mounted, setMounted] = useState(false);
@@ -37,10 +22,6 @@ export default function DashboardPage() {
   const [myArticles, setMyArticles] = useState<Article[]>([]);
 
   useEffect(() => { setMounted(true); }, []);
-
-  useEffect(() => {
-    if (address) setMyArticles(loadMyArticles(address));
-  }, [address]);
 
   const handlePublish = () => {
     if (!title || !content || !price || !address) return;
@@ -59,8 +40,7 @@ export default function DashboardPage() {
       category,
       publishedAt: Math.floor(Date.now() / 1000),
     };
-    saveArticle(article);
-    setMyArticles(loadMyArticles(address));
+    setMyArticles((prev) => [article, ...prev]);
     setMsg("Yazi yayinlandi!");
     setTitle(""); setExcerpt(""); setContent(""); setPrice("1");
   };
