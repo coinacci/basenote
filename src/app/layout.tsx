@@ -39,10 +39,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <footer>
               <div className="footer-logo">BASE<span style={{ color: "var(--gold)" }}>NOTE</span></div>
               <div className="footer-links">
-                <a href="#">About</a>
-                <a href="/dashboard">Writer Guide</a>
+                <a href="/about">About</a>
+                
                 <a href="/treasury">Treasury</a>
-                <a href="#">Help</a>
+                
               </div>
               <div style={{ fontFamily: "var(--font-body)", fontSize: ".7rem", color: "var(--muted)" }}>
                 Base blockchain · x402 · USDC · EVM
