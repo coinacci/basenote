@@ -1,4 +1,4 @@
-import { createX402Server } from "@x402/next";
+import { x402ResourceServer } from "@x402/next";
 
 export const x402Config = {
   network: "eip155:84532", // Base Sepolia
@@ -7,7 +7,7 @@ export const x402Config = {
 };
 
 export function createX402ServerInstance() {
-  return createX402Server({
+  return x402ResourceServer({
     facilitatorUrl: x402Config.facilitatorUrl,
   });
 }
