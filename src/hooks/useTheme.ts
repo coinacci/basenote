@@ -1,27 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
-export type ResolvedTheme = "light" | "dark";
-
-function getAutoTheme(): ResolvedTheme {
+function getAutoDark(): boolean {
   const hour = new Date().getHours();
-  return hour >= 7 && hour < 21 ? "light" : "dark";
+  return hour < 7 || hour >= 21;
 }
 
 export function useTheme() {
-  const [resolved, setResolved] = useState<ResolvedTheme>("light");
-
   useEffect(() => {
-    const resolve = () => setResolved(getAutoTheme());
-    resolve();
-    const interval = setInterval(resolve, 60000);
+    const apply = () => {
+      const dark = getAutoDark();
+      document.documentElement.setAttribute("data-theme-dark", dark ? "true" : "false");
+    };
+    apply();
+    const interval = setInterval(apply, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", resolved);
-  }, [resolved]);
-
-  return { resolved };
 }
