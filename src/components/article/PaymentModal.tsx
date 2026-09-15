@@ -109,7 +109,7 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
       if (data.success) {
         // İçeriği çek
         const contentRes = await fetch(
-          `/api/articles/content?articleId=${article.articleId}&address=${address}&id=${article.id}`
+          `/api/content?articleId=${article.articleId}&address=${address}&id=${article.id}`
         );
         const contentData = await contentRes.json();
         setStep("success");
