@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <a href="/?cat=defi">DeFi</a>
                   <a href="/?cat=ai">AI</a>
                   <a href="/?cat=guides">Guides</a>
-                  <a href="/treasury">Treasury</a><a href="/profile">Profile</a>
+                  <a href="/treasury">Treasury</a>
                 </div>
                 <div className="nav-right">
                   <ThemeSwitcher />
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="footer-logo">BASE<span style={{ color: "var(--accent)" }}>NOTE</span></div>
               <div className="footer-links">
                 <a href="/about">About</a>
-                <a href="/treasury">Treasury</a><a href="/profile">Profile</a>
+                <a href="/treasury">Treasury</a>
               </div>
               <div style={{ fontFamily: "var(--font-body)", fontSize: ".7rem", color: "var(--muted)" }}>
                 Base blockchain · x402 · USDC · EVM
