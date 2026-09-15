@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { usdcToHuman } from "@/hooks/useX402Payment";
-import { usdcWei } from "@/lib/articles";
 import type { Article } from "@/types";
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function usdcWei(amount: number): string {
+  return String(Math.round(amount * 1_000_000));
 }
 
 export default function DashboardPage() {
@@ -44,15 +47,17 @@ export default function DashboardPage() {
     setError("");
 
     const id = generateId();
-    const article: Article = {
+    const priceWei = usdcWei(parseFloat(price));
+
+    const article = {
       id,
-      articleId: ("0x" + id.padEnd(64, "0").slice(0, 64)) as `0x${string}`,
+      articleId: ("0x" + id.padEnd(64, "0").slice(0, 64)),
       title,
       excerpt: excerpt || title,
       content,
       author: address,
       authorAlias: address.slice(0, 6) + "..." + address.slice(-4),
-      priceUsdc: usdcWei(parseFloat(price)),
+      priceUsdc: priceWei,
       readCount: 0,
       category,
       publishedAt: Math.floor(Date.now() / 1000),
@@ -66,14 +71,15 @@ export default function DashboardPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMyArticles((prev) => [article, ...prev]);
+        setMyArticles((prev) => [article as unknown as Article, ...prev]);
         setMsg("Article published!");
         setTitle(""); setExcerpt(""); setContent(""); setPrice("1");
       } else {
         setError(data.error || "Failed to publish");
       }
-    } catch {
-      setError("Network error");
+    } catch (e) {
+      console.error("Publish error:", e);
+      setError("Network error — check console");
     } finally {
       setPublishing(false);
     }
@@ -160,9 +166,9 @@ export default function DashboardPage() {
           <div key={a.id} className="list-item">
             <div style={{ flex: 1 }}>
               <div className="list-title">{a.title}</div>
-              <div className="list-meta-txt">{a.category} · {a.readCount} reads · {usdcToHuman(a.priceUsdc)} USDC</div>
+              <div className="list-meta-txt">{a.category} · {a.readCount} reads · {usdcToHuman(BigInt(a.priceUsdc))} USDC</div>
             </div>
-            <div className="list-price">{usdcToHuman(a.priceUsdc)} USDC</div>
+            <div className="list-price">{usdcToHuman(BigInt(a.priceUsdc))} USDC</div>
           </div>
         ))
       )}
