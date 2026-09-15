@@ -11,8 +11,10 @@ const TREASURY_ABI = parseAbi([
   "function nextDistributionAt() external view returns (uint256)",
 ]);
 
+const ERC20_ABI = parseAbi(["function balanceOf(address) view returns (uint256)"]);
+const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`;
+
 export async function POST(req: NextRequest) {
-  // Güvenlik kontrolü
   const secret = req.headers.get("x-distribute-secret");
   if (secret !== DISTRIBUTE_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
     const publicClient = createPublicClient({ chain: base, transport: http("https://mainnet.base.org") });
     const walletClient = createWalletClient({ account, chain: base, transport: http("https://mainnet.base.org") });
 
-    // Contract'ta süre dolmuş mu kontrol et
+    // Süre dolmuş mu?
     const nextDistAt = await publicClient.readContract({
       address: TREASURY,
       abi: TREASURY_ABI,
@@ -45,9 +47,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // USDC bakiyesi
-    const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`;
-    const ERC20_ABI = parseAbi(["function balanceOf(address) view returns (uint256)"]);
+    // Bakiye
     const balance = await publicClient.readContract({
       address: USDC,
       abi: ERC20_ABI,
@@ -59,20 +59,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Treasury is empty" }, { status: 400 });
     }
 
-    // Redis'ten dağıtım verisi al
     const balanceUsdc = Number(balance) / 1_000_000;
     const distribution = await getDistributionData(balanceUsdc);
 
+    // Yazar shares — sattığı miktar ağırlık olarak kullanılır
     const authors = distribution.authors.map((a) => a.address as `0x${string}`);
     const authorShares = distribution.authors.map((a) => BigInt(Math.round(a.earned * 1_000_000)));
+
+    // Okuyucu shares — harcadığı miktar
     const readers = distribution.readers.map((r) => r.address as `0x${string}`);
     const readerShares = distribution.readers.map((r) => BigInt(Math.round(r.spent * 1_000_000)));
 
-    // Snapshot al — mevcut dönem verilerini kaydet
+    // Snapshot
     const cycleId = Date.now();
     await takeSnapshot(cycleId, distribution, balanceUsdc);
 
-    // Contract'ı çağır
+    // Distribute
     const hash = await walletClient.writeContract({
       address: TREASURY,
       abi: TREASURY_ABI,
@@ -80,10 +82,9 @@ export async function POST(req: NextRequest) {
       args: [authors, authorShares, readers, readerShares],
     });
 
-    // TX onayını bekle
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-    // Redis'i sıfırla — yeni dönem
+    // Redis sıfırla
     await resetCycle();
 
     return NextResponse.json({
@@ -115,23 +116,16 @@ async function takeSnapshot(cycleId: number, distribution: Awaited<ReturnType<ty
     totalAuthorEarnings: distribution.totalAuthorEarnings,
     totalReaderSpending: distribution.totalReaderSpending,
   };
-
-  // Snapshot'ı kalıcı olarak sakla
   await redis.set(`snapshot:${cycleId}`, JSON.stringify(snapshot));
-
-  // Snapshot listesine ekle
   await redis.lpush("snapshot-list", cycleId.toString());
 }
 
 async function resetCycle() {
-  // Aktif dönem verilerini sil
   const authorKeys = await redis.keys("author-earnings:*");
   const readerKeys = await redis.keys("reader-spending:*");
   const salesKeys = await redis.keys("sales:*");
-
   const allKeys = [...authorKeys, ...readerKeys, ...salesKeys,
     "total-author-earnings", "total-reader-spending"];
-
   for (const key of allKeys) {
     await redis.del(key);
   }
