@@ -7,13 +7,20 @@ import { TREASURY_ABI, ERC20_ABI } from "@/lib/abis";
 import { USDC_ADDRESS, TREASURY_ADDRESS } from "@/lib/web3";
 import type { PaymentStatus } from "@/types";
 
-/**
- * x402 ödeme akışı:
- * 1. USDC allowance kontrol et
- * 2. Yetersizse approve() çağır
- * 3. purchaseArticle() çağır
- * 4. İçeriği aç
- */
+export function usdcToHuman(val: bigint | string | number): string {
+  const n = typeof val === "bigint" ? val : BigInt(String(val));
+  const human = Number(n) / 1_000_000;
+  // Gereksiz trailing zero'ları kaldır: 4.25 → "4.25", 2.00 → "2", 4.50 → "4.5"
+  return human.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 6,
+  });
+}
+
+export function humanToUsdc(amount: number): bigint {
+  return parseUnits(amount.toString(), 6);
+}
+
 export function useX402Payment() {
   const { address } = useAccount();
   const [status, setStatus] = useState<PaymentStatus>("idle");
@@ -21,7 +28,6 @@ export function useX402Payment() {
 
   const { writeContractAsync } = useWriteContract();
 
-  // Mevcut allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: USDC_ADDRESS,
     abi: ERC20_ABI,
@@ -32,18 +38,10 @@ export function useX402Payment() {
 
   const pay = useCallback(
     async (articleId: `0x${string}`, priceUsdc: bigint): Promise<boolean> => {
-      if (!address) {
-        setError("Cüzdan bağlı değil");
-        return false;
-      }
-
+      if (!address) { setError("Wallet not connected"); return false; }
       setError(null);
-
       try {
-        // USDC 6 decimal — priceUsdc zaten wei cinsinden gelir
         const currentAllowance = allowance ?? 0n;
-
-        // 1. Approve gerekiyorsa
         if (currentAllowance < priceUsdc) {
           setStatus("approving");
           await writeContractAsync({
@@ -54,8 +52,6 @@ export function useX402Payment() {
           });
           await refetchAllowance();
         }
-
-        // 2. purchaseArticle
         setStatus("purchasing");
         await writeContractAsync({
           address: TREASURY_ADDRESS,
@@ -63,13 +59,11 @@ export function useX402Payment() {
           functionName: "purchaseArticle",
           args: [articleId],
         });
-
         setStatus("success");
         return true;
       } catch (err: unknown) {
-        const msg =
-          err instanceof Error ? err.message : "Ödeme başarısız";
-        setError(msg.includes("User rejected") ? "İşlem reddedildi" : msg);
+        const msg = err instanceof Error ? err.message : "Payment failed";
+        setError(msg.includes("User rejected") ? "Transaction rejected" : msg);
         setStatus("error");
         return false;
       }
@@ -77,23 +71,7 @@ export function useX402Payment() {
     [address, allowance, writeContractAsync, refetchAllowance]
   );
 
-  const reset = useCallback(() => {
-    setStatus("idle");
-    setError(null);
-  }, []);
+  const reset = useCallback(() => { setStatus("idle"); setError(null); }, []);
 
   return { pay, status, error, reset };
-}
-
-/**
- * USDC fiyatını insan okunabilir formata çevirir
- * USDC 6 decimal kullanır
- */
-export function usdcToHuman(wei: bigint): string {
-  const human = Number(wei) / 1_000_000;
-  return human % 1 === 0 ? human.toFixed(0) : human.toFixed(2);
-}
-
-export function humanToUsdc(amount: number): bigint {
-  return parseUnits(amount.toString(), 6);
 }
