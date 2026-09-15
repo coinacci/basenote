@@ -56,6 +56,14 @@ export function ConnectButton() {
           <div className="wallet-dropdown">
             <div className="wd-addr">{address}</div>
             {wrongChain && <div className="wd-warning">Please switch to Base network</div>}
+            
+              href="/profile"
+              className="wd-option"
+              style={{ display: "block", textDecoration: "none" }}
+              onClick={() => setOpen(false)}
+            >
+              <div className="wd-name">My Profile</div>
+            </a>
             <button className="wd-disconnect" onClick={() => { disconnect(); setOpen(false); }}>
               Disconnect
             </button>
