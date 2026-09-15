@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ERC20_ABI } from "@/lib/abis";
 import { USDC_ADDRESS, TREASURY_ADDRESS } from "@/lib/web3";
 import type { Article } from "@/types";
 
-type Step = "idle" | "approving" | "approved" | "paying" | "confirming" | "verifying" | "success" | "error";
+type Step = "idle" | "approving" | "paying" | "confirming" | "verifying" | "success" | "error";
 
 interface Props {
   article: Article;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 function usdcToHuman(val: bigint | string): string {
-  const n = typeof val === "bigint" ? val : BigInt(val);
+  const n = typeof val === "bigint" ? val : BigInt(String(val));
   const human = Number(n) / 1_000_000;
   return human % 1 === 0 ? human.toFixed(0) : human.toFixed(2);
 }
@@ -25,26 +25,27 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
   const [step, setStep] = useState<Step>("idle");
   const [error, setError] = useState("");
   const [payTxHash, setPayTxHash] = useState<`0x${string}` | undefined>();
+  const [grantCalled, setGrantCalled] = useState(false);
 
   const { writeContractAsync } = useWriteContract();
-
-  const priceUsdc = BigInt(article.priceUsdc);
+  const priceUsdc = BigInt(String(article.priceUsdc));
   const priceHuman = usdcToHuman(priceUsdc);
 
   const { isSuccess: txConfirmed } = useWaitForTransactionReceipt({
     hash: payTxHash,
-    query: { enabled: !!payTxHash && step === "confirming" },
+    query: { enabled: !!payTxHash },
   });
 
-  // TX onaylanınca access ver
-  if (txConfirmed && payTxHash && step === "confirming") {
-    grantAndFetch(payTxHash);
-  }
+  useEffect(() => {
+    if (txConfirmed && payTxHash && !grantCalled) {
+      setGrantCalled(true);
+      grantAndFetch(payTxHash);
+    }
+  }, [txConfirmed, payTxHash, grantCalled]);
 
   async function grantAndFetch(txHash: `0x${string}`) {
     setStep("verifying");
     try {
-      // Access kaydet
       const res = await fetch("/api/access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,13 +53,12 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
           articleId: article.articleId,
           address,
           txHash,
-          priceUsdc: article.priceUsdc.toString(),
+          priceUsdc: String(article.priceUsdc),
         }),
       });
       const data = await res.json();
-      if (!data.success) throw new Error(data.error);
+      if (!data.success) throw new Error(data.error || "Access grant failed");
 
-      // İçeriği getir
       const contentRes = await fetch(
         `/api/content?articleId=${article.articleId}&address=${address}&id=${article.id}`
       );
@@ -76,9 +76,9 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
   const handlePay = async () => {
     if (!address) return;
     setError("");
+    setGrantCalled(false);
 
     try {
-      // Step 1: Approve
       setStep("approving");
       await writeContractAsync({
         address: USDC_ADDRESS,
@@ -87,7 +87,6 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
         args: [TREASURY_ADDRESS, priceUsdc],
       });
 
-      // Step 2: Transfer
       setStep("paying");
       const hash = await writeContractAsync({
         address: USDC_ADDRESS,
@@ -107,7 +106,6 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
   const stepLabels: Record<Step, string> = {
     idle: `READ — ${priceHuman} USDC`,
     approving: "STEP 1/2: APPROVE IN WALLET...",
-    approved: "APPROVED",
     paying: "STEP 2/2: CONFIRM PAYMENT...",
     confirming: "WAITING FOR CONFIRMATION...",
     verifying: "UNLOCKING CONTENT...",
@@ -144,15 +142,7 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
         </div>
 
         {stepHints[step] && (
-          <div style={{
-            fontFamily: "var(--font-body)",
-            fontSize: ".78rem",
-            color: "var(--muted)",
-            marginBottom: "1rem",
-            padding: ".6rem .8rem",
-            background: "var(--gray)",
-            border: "1px solid var(--gray-2)",
-          }}>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "var(--muted)", marginBottom: "1rem", padding: ".6rem .8rem", background: "var(--gray)", border: "1px solid var(--gray-2)" }}>
             {stepHints[step]}
           </div>
         )}
@@ -165,13 +155,10 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
           <div className="modal-actions">
             <button
               className="btn-pay"
-              onClick={step === "error" ? () => { setStep("idle"); setError(""); } : handlePay}
+              onClick={step === "error" ? () => { setStep("idle"); setError(""); setGrantCalled(false); } : handlePay}
               disabled={["approving", "paying", "confirming", "verifying", "success"].includes(step)}
               style={{
-                background:
-                  step === "success" ? "#166534" :
-                  step === "error" ? "#991b1b" :
-                  "var(--badge)",
+                background: step === "success" ? "#166534" : step === "error" ? "#991b1b" : "var(--badge)",
               }}
             >
               {stepLabels[step]}
