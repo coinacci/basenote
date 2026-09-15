@@ -9,17 +9,20 @@ export async function GET() {
 
     const articles = await Promise.all(
       keys.map(async (key) => {
-        const a = await redis.get(key);
-        return a as Article;
+        const a = await redis.get(key) as Article;
+        if (!a) return null;
+        // Gerçek read count'u Redis'ten al
+        const readCount = await redis.get(`reads:${a.id}`);
+        return { ...a, readCount: readCount ? Number(readCount) : 0 };
       })
     );
 
     const sorted = articles
       .filter(Boolean)
-      .sort((a, b) => b.publishedAt - a.publishedAt);
+      .sort((a, b) => (b as Article).publishedAt - (a as Article).publishedAt);
 
     return NextResponse.json({ articles: sorted });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ articles: [] });
   }
 }
@@ -30,12 +33,11 @@ export async function POST(req: NextRequest) {
     if (!article.id || !article.title || !article.author) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
-    // content'i ayrı saklıyoruz — sadece erişimi olanlar görecek
     const { content, ...meta } = article;
     await redis.set(`article:${article.id}`, meta);
     await redis.set(`article-content:${article.id}`, content || "");
     return NextResponse.json({ success: true });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
