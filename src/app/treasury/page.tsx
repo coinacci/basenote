@@ -14,20 +14,52 @@ interface SaleDay {
   count: number;
 }
 
+function useCountdown(targetDate: Date) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date().getTime();
+      const diff = targetDate.getTime() - now;
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      });
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return timeLeft;
+}
+
 export default function TreasuryPage() {
   const [treasury, setTreasury] = useState<TreasuryData>({ balance: 0, platform: 0, authors: 0, readers: 0 });
   const [sales, setSales] = useState<SaleDay[]>([]);
   const [totalReads, setTotalReads] = useState(0);
-  const [nextDist, setNextDist] = useState("—");
   const [loading, setLoading] = useState(true);
 
+  // 7 günlük sayaç — şu andan itibaren 7 gün
+  const [target] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const countdown = useCountdown(target);
+
   useEffect(() => {
-    // Treasury bakiyesi
     fetch("/api/treasury-balance")
       .then((r) => r.json())
-      .then((data) => setTreasury(data));
+      .then(setTreasury);
 
-    // Okuma istatistikleri
     fetch("/api/stats")
       .then((r) => r.json())
       .then((data) => {
@@ -36,12 +68,6 @@ export default function TreasuryPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-
-    // Sonraki dağıtım
-    const now = new Date();
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    const diff = Math.ceil((lastDay.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    setNextDist(`${diff} days`);
   }, []);
 
   const rows = [
@@ -50,27 +76,41 @@ export default function TreasuryPage() {
     { label: "Readers", pct: 15, color: "var(--accent)", desc: "Top spenders this cycle", amount: treasury.readers },
   ];
 
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   return (
     <div className="main" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
       <div style={{ background: "var(--accent)", padding: ".4rem .75rem", marginBottom: "1.5rem", display: "inline-block" }}>
         <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent-text)" }}>Treasury</span>
       </div>
 
-      {/* Ana bakiye */}
-      <div style={{ border: "2px solid var(--ink)", padding: "1.5rem 2rem", marginBottom: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* Ana bakiye + sayaç */}
+      <div style={{ border: "2px solid var(--ink)", padding: "1.5rem 2rem", marginBottom: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div>
           <div style={{ fontFamily: "var(--font-sub)", fontSize: ".72rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: ".4rem" }}>Total Treasury Balance</div>
           <div style={{ fontFamily: "var(--font-heading)", fontSize: "2.8rem", color: "var(--ink)", lineHeight: 1 }}>
-            {treasury.balance.toFixed(2)} <span style={{ fontSize: "1.2rem", color: "var(--muted)" }}>USDC</span>
+            {treasury.balance.toFixed(2)} <span style={{ fontSize: "1.2rem", color: "var(--muted)", fontFamily: "var(--font-sub)" }}>USDC</span>
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontFamily: "var(--font-sub)", fontSize: ".72rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: ".4rem" }}>Next Distribution</div>
-          <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.4rem", color: "var(--ink)" }}>{nextDist}</div>
+          <div style={{ fontFamily: "var(--font-sub)", fontSize: ".72rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: ".6rem" }}>Next Distribution</div>
+          <div style={{ display: "flex", gap: ".75rem", alignItems: "center" }}>
+            {[
+              { val: countdown.days, label: "D" },
+              { val: countdown.hours, label: "H" },
+              { val: countdown.minutes, label: "M" },
+              { val: countdown.seconds, label: "S" },
+            ].map((t) => (
+              <div key={t.label} style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.8rem", color: "var(--ink)", lineHeight: 1 }}>{pad(t.val)}</div>
+                <div style={{ fontFamily: "var(--font-sub)", fontSize: ".6rem", color: "var(--muted)", letterSpacing: ".1em" }}>{t.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Dağıtım breakdown */}
+      {/* Dağıtım */}
       <div className="col-label" style={{ marginBottom: "1rem" }}>Distribution Breakdown</div>
       <div style={{ border: "1px solid var(--gray-2)", marginBottom: "2rem" }}>
         <div style={{ display: "flex", gap: ".1rem", height: "8px" }}>
@@ -126,7 +166,7 @@ export default function TreasuryPage() {
       <div style={{ fontFamily: "var(--font-body)", fontSize: ".82rem", color: "var(--muted)", lineHeight: 1.7, borderLeft: "3px solid var(--accent)", paddingLeft: "1rem", marginTop: "2rem" }}>
         <strong style={{ color: "var(--ink)", fontFamily: "var(--font-sub)", textTransform: "uppercase", letterSpacing: ".05em" }}>How it works</strong><br />
         Every USDC payment flows into the treasury wallet on Base Sepolia.
-        At the end of each month, the balance is distributed: 70% to authors weighted by USDC earned,
+        At the end of each 7-day cycle, the balance is distributed: 70% to authors weighted by USDC earned,
         15% to top readers weighted by USDC spent, and 15% to the platform.
       </div>
     </div>
