@@ -1,5 +1,4 @@
 export const TREASURY_ABI = [
-  // Yazar
   {
     name: "publishArticle",
     type: "function",
@@ -10,7 +9,6 @@ export const TREASURY_ABI = [
     ],
     outputs: [],
   },
-  // Okuyucu — x402 akışı
   {
     name: "purchaseArticle",
     type: "function",
@@ -18,7 +16,6 @@ export const TREASURY_ABI = [
     inputs: [{ name: "articleId", type: "bytes32" }],
     outputs: [],
   },
-  // View
   {
     name: "treasuryBalance",
     type: "function",
@@ -57,26 +54,6 @@ export const TREASURY_ABI = [
     inputs: [{ name: "articleId", type: "bytes32" }],
     outputs: [{ type: "address" }],
   },
-  // Events
-  {
-    name: "ArticlePurchased",
-    type: "event",
-    inputs: [
-      { name: "articleId", type: "bytes32", indexed: true },
-      { name: "reader", type: "address", indexed: true },
-      { name: "author", type: "address", indexed: true },
-      { name: "price", type: "uint256" },
-    ],
-  },
-  {
-    name: "ArticlePublished",
-    type: "event",
-    inputs: [
-      { name: "articleId", type: "bytes32", indexed: true },
-      { name: "author", type: "address", indexed: true },
-      { name: "price", type: "uint256" },
-    ],
-  },
 ] as const;
 
 export const ERC20_ABI = [
@@ -86,6 +63,16 @@ export const ERC20_ABI = [
     stateMutability: "nonpayable",
     inputs: [
       { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ type: "bool" }],
+  },
+  {
+    name: "transfer",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
       { name: "amount", type: "uint256" },
     ],
     outputs: [{ type: "bool" }],
