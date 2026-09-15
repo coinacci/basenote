@@ -51,7 +51,7 @@ export default function HomePage() {
         <div className="date-bar">
           <div className="date-inner">
             <span>September 15, 2026</span>
-            <span>Treasury this month: <span className="t-num">—</span></span>
+            <span>{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</span>
           </div>
         </div>
         <div className="main" style={{ paddingTop: "4rem", textAlign: "center" }}>
