@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createPublicClient, http, formatUnits } from "viem";
-import { baseSepolia } from "viem/chains";
+import { base } from "viem/chains";
 
-const USDC_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as `0x${string}`;
+const USDC_SEPOLIA = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`;
 const TREASURY = process.env.NEXT_PUBLIC_TREASURY_CONTRACT_ADDRESS as `0x${string}`;
 
 const ERC20_ABI = [
@@ -18,7 +18,7 @@ const ERC20_ABI = [
 export async function GET() {
   try {
     const client = createPublicClient({
-      chain: baseSepolia,
+      chain: base,
       transport: http("https://sepolia.base.org"),
     });
 
