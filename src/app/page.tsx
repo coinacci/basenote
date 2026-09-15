@@ -2,25 +2,28 @@
 
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { usdcToHuman } from "@/hooks/useX402Payment";
 import { PaymentModal } from "@/components/article/PaymentModal";
 import { TreasuryStrip } from "@/components/ui/TreasuryStrip";
 import type { Article } from "@/types";
+
+function usdcToHuman(val: bigint | string): string {
+  const n = typeof val === "bigint" ? val : BigInt(val);
+  const human = Number(n) / 1_000_000;
+  return human % 1 === 0 ? human.toFixed(0) : human.toFixed(2);
+}
 
 export default function HomePage() {
   const { address } = useAccount();
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [purchased, setPurchased] = useState<Set<string>>(new Set());
+  const [articleContent, setArticleContent] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/articles")
       .then((r) => r.json())
-      .then((data) => {
-        setArticles(data.articles || []);
-        setLoading(false);
-      })
+      .then((data) => { setArticles(data.articles || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
@@ -43,22 +46,29 @@ export default function HomePage() {
   const middle = articles.slice(0, 3);
   const sorted = [...articles].sort((a, b) => b.readCount - a.readCount);
 
-  const handlePurchaseSuccess = () => {
-    if (selectedArticle) setPurchased((prev) => new Set(prev).add(selectedArticle.id));
-    setTimeout(() => setSelectedArticle(null), 1000);
+  const handlePurchaseSuccess = (content: string) => {
+    if (selectedArticle) {
+      setPurchased((prev) => new Set(prev).add(selectedArticle.id));
+      setArticleContent((prev) => ({ ...prev, [selectedArticle.id]: content }));
+    }
+    setSelectedArticle(null);
   };
 
   const openArticle = (article: Article) => {
-    if (purchased.has(article.id)) return;
+    if (purchased.has(article.id)) {
+      // İçerik zaten var mı?
+      if (articleContent[article.id]) {
+        alert(articleContent[article.id]); // Geçici — ileride article page yapacağız
+      }
+      return;
+    }
     setSelectedArticle(article);
   };
 
   if (loading) {
     return (
       <>
-        <div className="date-bar">
-          <div className="date-inner"><span>September 15, 2026</span></div>
-        </div>
+        <div className="date-bar"><div className="date-inner"><span>September 15, 2026</span></div></div>
         <div className="main" style={{ paddingTop: "4rem", textAlign: "center" }}>
           <div style={{ fontFamily: "var(--font-sub)", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em", fontSize: ".85rem" }}>Loading...</div>
         </div>
