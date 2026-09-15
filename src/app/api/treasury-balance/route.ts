@@ -6,13 +6,11 @@ const USDC_MAINNET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string
 const TREASURY = process.env.NEXT_PUBLIC_TREASURY_CONTRACT_ADDRESS as `0x${string}`;
 
 const ERC20_ABI = [
-  {
-    name: "balanceOf",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "account", type: "address" }],
-    outputs: [{ type: "uint256" }],
-  },
+  { name: "balanceOf", type: "function", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ type: "uint256" }] },
+] as const;
+
+const TREASURY_ABI = [
+  { name: "nextDistributionAt", type: "function", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
 ] as const;
 
 export async function GET() {
@@ -22,12 +20,10 @@ export async function GET() {
       transport: http("https://mainnet.base.org"),
     });
 
-    const balance = await client.readContract({
-      address: USDC_MAINNET,
-      abi: ERC20_ABI,
-      functionName: "balanceOf",
-      args: [TREASURY],
-    });
+    const [balance, nextDistAt] = await Promise.all([
+      client.readContract({ address: USDC_MAINNET, abi: ERC20_ABI, functionName: "balanceOf", args: [TREASURY] }),
+      client.readContract({ address: TREASURY, abi: TREASURY_ABI, functionName: "nextDistributionAt" }),
+    ]);
 
     const balanceUsdc = parseFloat(formatUnits(balance, 6));
 
@@ -36,9 +32,10 @@ export async function GET() {
       platform: +(balanceUsdc * 0.15).toFixed(2),
       authors: +(balanceUsdc * 0.70).toFixed(2),
       readers: +(balanceUsdc * 0.15).toFixed(2),
+      nextDistributionAt: nextDistAt.toString(),
     });
   } catch (e) {
     console.error("Treasury balance error:", e);
-    return NextResponse.json({ balance: 0, platform: 0, authors: 0, readers: 0 });
+    return NextResponse.json({ balance: 0, platform: 0, authors: 0, readers: 0, nextDistributionAt: "0" });
   }
 }

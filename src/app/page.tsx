@@ -69,7 +69,7 @@ export default function HomePage() {
       <div className="date-bar">
         <div className="date-inner">
           <span>September 15, 2026</span>
-          <span>TREASURY THIS MONTH: <span className="t-num">— USDC</span> — DISTRIBUTED IN 18 DAYS</span>
+          <span>TREASURY THIS MONTH: <span className="t-num">{treasury} USDC</span></span>
         </div>
       </div>
 
