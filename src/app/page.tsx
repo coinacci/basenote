@@ -7,17 +7,15 @@ import { TreasuryStrip } from "@/components/ui/TreasuryStrip";
 import type { Article } from "@/types";
 
 function usdcToHuman(val: bigint | string): string {
-  const n = typeof val === "bigint" ? val : BigInt(val);
+  const n = typeof val === "bigint" ? val : BigInt(String(val));
   const human = Number(n) / 1_000_000;
-  return human % 1 === 0 ? human.toFixed(0) : human.toFixed(2);
+  return human.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 6 });
 }
 
 export default function HomePage() {
   const { address } = useAccount();
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [purchased, setPurchased] = useState<Set<string>>(new Set());
-  const [articleContent, setArticleContent] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,42 +25,13 @@ export default function HomePage() {
       .catch(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!address || articles.length === 0) return;
-    Promise.all(
-      articles.map(async (a) => {
-        const res = await fetch(`/api/access?articleId=${a.articleId}&address=${address}`);
-        const data = await res.json();
-        return data.hasAccess ? a.id : null;
-      })
-    ).then((results) => {
-      const ids = results.filter(Boolean) as string[];
-      if (ids.length > 0) setPurchased(new Set(ids));
-    });
-  }, [address, articles]);
-
   const featured = articles[0] || null;
   const sidebar = articles.slice(1, 5);
   const middle = articles.slice(0, 3);
   const sorted = [...articles].sort((a, b) => b.readCount - a.readCount);
 
-  const handlePurchaseSuccess = (content: string) => {
-    if (selectedArticle) {
-      setPurchased((prev) => new Set(prev).add(selectedArticle.id));
-      setArticleContent((prev) => ({ ...prev, [selectedArticle.id]: content }));
-    }
-    setSelectedArticle(null);
-  };
-
   const openArticle = (article: Article) => {
-    if (purchased.has(article.id)) {
-      // İçerik zaten var mı?
-      if (articleContent[article.id]) {
-        alert(articleContent[article.id]); // Geçici — ileride article page yapacağız
-      }
-      return;
-    }
-    setSelectedArticle(article);
+    window.location.href = `/article/${article.id}`;
   };
 
   if (loading) {
@@ -122,7 +91,7 @@ export default function HomePage() {
                   <span className="read-time">&nbsp;·&nbsp;8 min read</span>
                 </div>
                 <div className="price-tag" onClick={() => openArticle(featured)}>
-                  {purchased.has(featured.id) ? "✓ READ" : `${usdcToHuman(featured.priceUsdc)} USDC`}
+                  {usdcToHuman(featured.priceUsdc)} USDC
                 </div>
               </div>
             </div>
@@ -135,7 +104,7 @@ export default function HomePage() {
                     <div className="sidebar-meta">
                       <span className="sidebar-author">{a.authorAlias}</span>
                       <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
-                        {purchased.has(a.id) ? "✓" : `${usdcToHuman(a.priceUsdc)} USDC`}
+                        {usdcToHuman(a.priceUsdc)} USDC
                       </div>
                     </div>
                   </div>
@@ -161,7 +130,7 @@ export default function HomePage() {
                 <div className="article-meta">
                   <span className="author-name" style={{ fontSize: ".72rem" }}>{a.authorAlias}</span>
                   <div className="price-tag" style={{ fontSize: ".68rem", padding: ".18rem .5rem" }}>
-                    {purchased.has(a.id) ? "✓ READ" : `${usdcToHuman(a.priceUsdc)} USDC`}
+                    {usdcToHuman(a.priceUsdc)} USDC
                   </div>
                 </div>
               </div>
@@ -198,7 +167,7 @@ export default function HomePage() {
       {selectedArticle && (
         <PaymentModal
           article={selectedArticle}
-          onSuccess={handlePurchaseSuccess}
+          onSuccess={() => {}}
           onClose={() => setSelectedArticle(null)}
         />
       )}
