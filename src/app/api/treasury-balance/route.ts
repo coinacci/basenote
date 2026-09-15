@@ -14,28 +14,42 @@ const TREASURY_ABI = [
 ] as const;
 
 export async function GET() {
+  const client = createPublicClient({
+    chain: base,
+    transport: http("https://mainnet.base.org"),
+  });
+
+  let balance = 0;
+  let nextDistributionAt = "0";
+
   try {
-    const client = createPublicClient({
-      chain: base,
-      transport: http("https://mainnet.base.org"),
+    const raw = await client.readContract({
+      address: USDC_MAINNET,
+      abi: ERC20_ABI,
+      functionName: "balanceOf",
+      args: [TREASURY],
     });
-
-    const [balance, nextDistAt] = await Promise.all([
-      client.readContract({ address: USDC_MAINNET, abi: ERC20_ABI, functionName: "balanceOf", args: [TREASURY] }),
-      client.readContract({ address: TREASURY, abi: TREASURY_ABI, functionName: "nextDistributionAt" }),
-    ]);
-
-    const balanceUsdc = parseFloat(formatUnits(balance, 6));
-
-    return NextResponse.json({
-      balance: balanceUsdc,
-      platform: +(balanceUsdc * 0.15).toFixed(2),
-      authors: +(balanceUsdc * 0.70).toFixed(2),
-      readers: +(balanceUsdc * 0.15).toFixed(2),
-      nextDistributionAt: nextDistAt.toString(),
-    });
+    balance = parseFloat(formatUnits(raw, 6));
   } catch (e) {
-    console.error("Treasury balance error:", e);
-    return NextResponse.json({ balance: 0, platform: 0, authors: 0, readers: 0, nextDistributionAt: "0" });
+    console.error("Balance error:", e);
   }
+
+  try {
+    const raw = await client.readContract({
+      address: TREASURY,
+      abi: TREASURY_ABI,
+      functionName: "nextDistributionAt",
+    });
+    nextDistributionAt = raw.toString();
+  } catch (e) {
+    console.error("NextDistAt error:", e);
+  }
+
+  return NextResponse.json({
+    balance,
+    platform: +(balance * 0.15).toFixed(2),
+    authors: +(balance * 0.70).toFixed(2),
+    readers: +(balance * 0.15).toFixed(2),
+    nextDistributionAt,
+  });
 }
