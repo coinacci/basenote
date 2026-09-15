@@ -19,13 +19,30 @@ export default function DashboardPage() {
   const [price, setPrice] = useState("1");
   const [category, setCategory] = useState("DeFi");
   const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+  const [publishing, setPublishing] = useState(false);
   const [myArticles, setMyArticles] = useState<Article[]>([]);
 
   useEffect(() => { setMounted(true); }, []);
 
-  const handlePublish = () => {
+  useEffect(() => {
+    if (!address) return;
+    fetch("/api/articles")
+      .then((r) => r.json())
+      .then((data) => {
+        const mine = (data.articles || []).filter(
+          (a: Article) => a.author.toLowerCase() === address.toLowerCase()
+        );
+        setMyArticles(mine);
+      });
+  }, [address]);
+
+  const handlePublish = async () => {
     if (!title || !content || !price || !address) return;
+    setPublishing(true);
     setMsg("");
+    setError("");
+
     const id = generateId();
     const article: Article = {
       id,
@@ -40,9 +57,26 @@ export default function DashboardPage() {
       category,
       publishedAt: Math.floor(Date.now() / 1000),
     };
-    setMyArticles((prev) => [article, ...prev]);
-    setMsg("Article published!");
-    setTitle(""); setExcerpt(""); setContent(""); setPrice("1");
+
+    try {
+      const res = await fetch("/api/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(article),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMyArticles((prev) => [article, ...prev]);
+        setMsg("Article published!");
+        setTitle(""); setExcerpt(""); setContent(""); setPrice("1");
+      } else {
+        setError(data.error || "Failed to publish");
+      }
+    } catch {
+      setError("Network error");
+    } finally {
+      setPublishing(false);
+    }
   };
 
   if (!mounted) return null;
@@ -59,8 +93,8 @@ export default function DashboardPage() {
 
   return (
     <div className="main" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
-      <div style={{ background: "var(--gold)", padding: ".4rem .75rem", marginBottom: "1.5rem", display: "inline-block" }}>
-        <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#0a0a0a" }}>Writer Dashboard</span>
+      <div style={{ background: "var(--accent)", padding: ".4rem .75rem", marginBottom: "1.5rem", display: "inline-block" }}>
+        <span style={{ fontFamily: "var(--font-sub)", fontSize: ".82rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent-text)" }}>Writer Dashboard</span>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1rem", marginBottom: "2rem" }}>
@@ -106,18 +140,15 @@ export default function DashboardPage() {
           <label className="form-label">Content</label>
           <textarea className="form-input" rows={10} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Article content — only visible after payment" />
         </div>
-        {msg && (
-          <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "#166534", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: ".6rem", marginBottom: "1rem" }}>
-            {msg}
-          </div>
-        )}
+        {msg && <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "#166534", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: ".6rem", marginBottom: "1rem" }}>{msg}</div>}
+        {error && <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "#991b1b", background: "#fef2f2", border: "1px solid #fecaca", padding: ".6rem", marginBottom: "1rem" }}>{error}</div>}
         <button
           className="btn-write"
-          style={{ padding: ".5rem 1.5rem", cursor: "pointer", opacity: (!title || !content) ? 0.5 : 1 }}
+          style={{ padding: ".5rem 1.5rem", cursor: "pointer", opacity: (!title || !content || publishing) ? 0.5 : 1 }}
           onClick={handlePublish}
-          disabled={!title || !content}
+          disabled={!title || !content || publishing}
         >
-          Publish
+          {publishing ? "Publishing..." : "Publish"}
         </button>
       </div>
 
