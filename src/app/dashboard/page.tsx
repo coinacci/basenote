@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { usdcToHuman } from "@/hooks/useX402Payment";
 import type { Article } from "@/types";
+import { RichEditor } from "@/components/ui/RichEditor";
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -47,8 +48,6 @@ export default function DashboardPage() {
     setError("");
 
     const id = generateId();
-    const priceWei = usdcWei(parseFloat(price));
-
     const article = {
       id,
       articleId: ("0x" + id.padEnd(64, "0").slice(0, 64)),
@@ -57,7 +56,7 @@ export default function DashboardPage() {
       content,
       author: address,
       authorAlias: address.slice(0, 6) + "..." + address.slice(-4),
-      priceUsdc: priceWei,
+      priceUsdc: usdcWei(parseFloat(price)),
       readCount: 0,
       category,
       publishedAt: Math.floor(Date.now() / 1000),
@@ -77,9 +76,8 @@ export default function DashboardPage() {
       } else {
         setError(data.error || "Failed to publish");
       }
-    } catch (e) {
-      console.error("Publish error:", e);
-      setError("Network error — check console");
+    } catch {
+      setError("Network error");
     } finally {
       setPublishing(false);
     }
@@ -138,16 +136,24 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
         <div style={{ marginBottom: "1rem" }}>
           <label className="form-label">Excerpt</label>
           <textarea className="form-input" rows={2} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Short description (shown on homepage)" />
         </div>
+
         <div style={{ marginBottom: "1.2rem" }}>
           <label className="form-label">Content</label>
-          <textarea className="form-input" rows={10} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Article content — only visible after payment" />
+          <RichEditor
+            value={content}
+            onChange={setContent}
+            placeholder="Article content — only visible after payment"
+          />
         </div>
+
         {msg && <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "#166534", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: ".6rem", marginBottom: "1rem" }}>{msg}</div>}
         {error && <div style={{ fontFamily: "var(--font-body)", fontSize: ".78rem", color: "#991b1b", background: "#fef2f2", border: "1px solid #fecaca", padding: ".6rem", marginBottom: "1rem" }}>{error}</div>}
+
         <button
           className="btn-write"
           style={{ padding: ".5rem 1.5rem", cursor: "pointer", opacity: (!title || !content || publishing) ? 0.5 : 1 }}
