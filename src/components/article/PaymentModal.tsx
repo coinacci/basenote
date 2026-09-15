@@ -1,8 +1,14 @@
 "use client";
 
-import { useX402Payment, usdcToHuman } from "@/hooks/useX402Payment";
-import { useAccount } from "wagmi";
+import { useState, useEffect } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseUnits } from "viem";
+import { ERC20_ABI } from "@/lib/abis";
+import { USDC_ADDRESS, TREASURY_ADDRESS } from "@/lib/web3";
+import { usdcToHuman } from "@/hooks/useX402Payment";
 import type { Article } from "@/types";
+
+type Step = "idle" | "approving" | "approved" | "paying" | "verifying" | "success" | "error";
 
 interface Props {
   article: Article;
@@ -12,22 +18,90 @@ interface Props {
 
 export function PaymentModal({ article, onSuccess, onClose }: Props) {
   const { address } = useAccount();
-  const { pay, status, error, reset } = useX402Payment();
+  const [step, setStep] = useState<Step>("idle");
+  const [error, setError] = useState("");
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
+
+  const { writeContractAsync } = useWriteContract();
+
+  const { isSuccess: txConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+    query: { enabled: !!txHash },
+  });
+
+  useEffect(() => {
+    if (txConfirmed && txHash && step === "paying") {
+      grantAccess(txHash);
+    }
+  }, [txConfirmed, txHash]);
+
+  const grantAccess = async (hash: `0x${string}`) => {
+    setStep("verifying");
+    try {
+      const res = await fetch("/api/access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          articleId: article.articleId,
+          address,
+          txHash: hash,
+          priceUsdc: article.priceUsdc.toString(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStep("success");
+        setTimeout(onSuccess, 1000);
+      } else {
+        setError(data.error || "Verification failed");
+        setStep("error");
+      }
+    } catch {
+      setError("Network error");
+      setStep("error");
+    }
+  };
+
+  const handlePay = async () => {
+    if (!address) return;
+    setError("");
+    try {
+      // 1. Approve
+      setStep("approving");
+      await writeContractAsync({
+        address: USDC_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [TREASURY_ADDRESS, article.priceUsdc],
+      });
+
+      // 2. Transfer USDC to treasury
+      setStep("paying");
+      const hash = await writeContractAsync({
+        address: USDC_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: "transfer",
+        args: [TREASURY_ADDRESS, article.priceUsdc],
+      });
+      setTxHash(hash);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Transaction failed";
+      setError(msg.includes("User rejected") ? "Transaction rejected" : msg);
+      setStep("error");
+    }
+  };
 
   const priceHuman = usdcToHuman(article.priceUsdc);
 
-  const handlePay = async () => {
-    const ok = await pay(article.articleId, article.priceUsdc);
-    if (ok) onSuccess();
-  };
-
-  const statusLabel = {
+  const label = {
     idle: `READ — ${priceHuman} USDC`,
     approving: "APPROVING USDC...",
-    purchasing: "SENDING TRANSACTION...",
-    success: "PAID ✓",
+    approved: "APPROVED",
+    paying: "SENDING PAYMENT...",
+    verifying: "VERIFYING...",
+    success: "ACCESS GRANTED ✓",
     error: "TRY AGAIN",
-  }[status];
+  }[step];
 
   return (
     <div className="overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -48,14 +122,14 @@ export function PaymentModal({ article, onSuccess, onClose }: Props) {
           <div className="modal-actions">
             <button
               className="btn-pay"
-              onClick={status === "error" ? reset : handlePay}
-              disabled={status === "approving" || status === "purchasing" || status === "success"}
+              onClick={step === "error" ? () => setStep("idle") : handlePay}
+              disabled={["approving", "paying", "verifying", "success"].includes(step)}
               style={{
-                background: status === "success" ? "#166534" :
-                            status === "error" ? "#991b1b" : "var(--crimson)",
+                background: step === "success" ? "#166534" :
+                            step === "error" ? "#991b1b" : "var(--crimson)",
               }}
             >
-              {statusLabel}
+              {label}
             </button>
             <button className="btn-cancel" onClick={onClose}>CLOSE</button>
           </div>

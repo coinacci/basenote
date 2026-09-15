@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 import { MOCK_ARTICLES } from "@/lib/articles";
 import { usdcToHuman } from "@/hooks/useX402Payment";
 import { PaymentModal } from "@/components/article/PaymentModal";
@@ -8,6 +9,7 @@ import { TreasuryStrip } from "@/components/ui/TreasuryStrip";
 import type { Article } from "@/types";
 
 export default function HomePage() {
+  const { address } = useAccount();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [purchased, setPurchased] = useState<Set<string>>(new Set());
 
@@ -17,9 +19,24 @@ export default function HomePage() {
   const middle = articles.slice(0, 3);
   const sorted = [...articles].sort((a, b) => b.readCount - a.readCount);
 
+  // Daha önce satın alınanları Redis'ten kontrol et
+  useEffect(() => {
+    if (!address || articles.length === 0) return;
+    Promise.all(
+      articles.map(async (a) => {
+        const res = await fetch(`/api/access?articleId=${a.articleId}&address=${address}`);
+        const data = await res.json();
+        return data.hasAccess ? a.id : null;
+      })
+    ).then((results) => {
+      const ids = results.filter(Boolean) as string[];
+      if (ids.length > 0) setPurchased(new Set(ids));
+    });
+  }, [address]);
+
   const handlePurchaseSuccess = () => {
     if (selectedArticle) setPurchased((prev) => new Set(prev).add(selectedArticle.id));
-    setTimeout(() => setSelectedArticle(null), 1500);
+    setTimeout(() => setSelectedArticle(null), 1000);
   };
 
   const openArticle = (article: Article) => {
